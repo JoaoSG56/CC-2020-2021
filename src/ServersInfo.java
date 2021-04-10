@@ -1,8 +1,6 @@
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.net.UnknownHostException;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -13,19 +11,24 @@ public class ServersInfo {
     private final Lock rl = l.readLock();
     private final Lock wl = l.writeLock();
     private Map<String, FastFileSrv> servers;
+    private Stack<Packet> packetsToProcess;
+    private final int timeUpServer = 20;
+
 
     public ServersInfo() {
         this.servers = new HashMap<>();
+        this.packetsToProcess = new Stack<>();
     }
 
     public ServersInfo(Map<String, FastFileSrv> s) {
         this.servers = s;
+        this.packetsToProcess = new Stack<>();
     }
 
     public void addServer(String n, InetAddress ip) {
         this.wl.lock();
         try {
-            this.servers.put(n, new FastFileSrv(n, ip));
+            this.servers.put(n, new FastFileSrv(n, ip, timeUpServer));
         } finally {
             this.wl.unlock();
         }
@@ -49,15 +52,48 @@ public class ServersInfo {
         }
     }
 
-    public Set<FastFileSrv> getFastFileSrvs(){
+    public Set<FastFileSrv> getFastFileSrvs() {
         Set<FastFileSrv> r = new TreeSet();
         this.rl.lock();
         try {
             r.addAll(this.servers.values());
-        }finally {
+        } finally {
             this.rl.unlock();
         }
         return r;
+    }
+
+    public void renewServer(String server) {
+        String[] args = server.split(";"); // name;ip
+        this.wl.lock();
+        try {
+            if (this.servers.containsKey(server))
+                this.servers.get(args[0]).setTimeUp(this.timeUpServer);
+            else
+                addServer(args[0], InetAddress.getByName(args[1]));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } finally {
+            this.wl.unlock();
+        }
+    }
+
+    public void pushPacket(Packet p) {
+        this.wl.lock();
+        try {
+            this.packetsToProcess.push(p);
+        } finally {
+            this.wl.unlock();
+        }
+    }
+
+    public Packet popPacket() {
+        this.wl.lock();
+        try {
+            return this.packetsToProcess.pop();
+        } finally {
+            this.wl.unlock();
+        }
     }
 
 }

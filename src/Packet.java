@@ -93,4 +93,12 @@ public class Packet {
 
     }
 
+    public int getType(){
+        return this.type;
+    }
+
+    public String getPayloadStr(){
+        return new String(this.payload,StandardCharsets.UTF_8);
+    }
+
 }

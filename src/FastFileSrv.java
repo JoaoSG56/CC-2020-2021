@@ -11,6 +11,12 @@ public class FastFileSrv {
         this.timeUp = 20;
     }
 
+    public FastFileSrv(String name, InetAddress ip, int timeUp){
+        this.name = name;
+        this.ip = ip;
+        this.timeUp = timeUp;
+    }
+
     public FastFileSrv(FastFileSrv f){
         this.name = f.getName();
         this.ip = f.getIp();
