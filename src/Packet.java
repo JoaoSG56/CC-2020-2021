@@ -1,6 +1,7 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class Packet {
 
@@ -32,9 +33,8 @@ public class Packet {
         try {
             System.arraycopy(datagram, 4, destIp, 0, 4);
             tKey = InetAddress.getByAddress(destIp).getHostAddress();
-            tKey += ':' + ByteBuffer.wrap(datagram, 8, 4).getInt();
-            tKey += ':' + ByteBuffer.wrap(datagram, 12, 4).getInt();
-
+            tKey += ":" + ByteBuffer.wrap(datagram, 8, 4).getInt();
+            tKey += ":" + ByteBuffer.wrap(datagram, 12, 4).getInt();
             this.transferKey = tKey;
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -61,7 +61,6 @@ public class Packet {
 
             byte[] type = intToByteArray(this.type);
             byte[] offset = intToByteArray(this.offset);
-
             byte[] data = new byte[24 + this.payload.length];
 
             System.arraycopy(id,0,data,0,4);
@@ -84,12 +83,14 @@ public class Packet {
         return bb.array();
     }
 
-    public String toString(){
+    public String toString() {
 
         return "ID: " + this.packetID + '\n' +
                 "TransferKey: " + this.transferKey + '\n' +
                 "Type: " + this.type + '\n' +
-                "Offset: " + this.offset;
+                "Offset: " + this.offset + '\n' +
+                "PAYLOAD: \n" + new String(this.payload, StandardCharsets.UTF_8);
+
     }
 
 }

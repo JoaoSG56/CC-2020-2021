@@ -1,6 +1,8 @@
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -36,6 +38,26 @@ public class ServersInfo {
         } finally {
             this.rl.unlock();
         }
+    }
+
+    public void removeServer(String name) {
+        this.wl.lock();
+        try {
+            this.servers.remove(name);
+        } finally {
+            this.wl.unlock();
+        }
+    }
+
+    public Set<FastFileSrv> getFastFileSrvs(){
+        Set<FastFileSrv> r = new TreeSet();
+        this.rl.lock();
+        try {
+            r.addAll(this.servers.values());
+        }finally {
+            this.rl.unlock();
+        }
+        return r;
     }
 
 }

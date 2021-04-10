@@ -11,6 +11,12 @@ public class FastFileSrv {
         this.timeUp = 20;
     }
 
+    public FastFileSrv(FastFileSrv f){
+        this.name = f.getName();
+        this.ip = f.getIp();
+        this.timeUp = f.getTimeUp();
+    }
+
     public int getTimeUp(){
         return timeUp;
     }
@@ -22,4 +28,18 @@ public class FastFileSrv {
     public String getName(){
         return this.name;
     }
+
+    public void setTimeUp(int value){
+        this.timeUp = value;
+    }
+
+    public int decrementTimeUp(int value){
+        this.timeUp-=value;
+        return this.timeUp;
+    }
+
+    public FastFileSrv clone(){
+        return new FastFileSrv(this);
+    }
+
 }

@@ -1,21 +1,40 @@
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Map;
+import java.net.*;
 
 public class HttpGw {
     private int port;
-    private Map<InetAddress, DatagramSocket> servidores;
+    private ServersInfo servidores;
+    private int idPacket;
 
     public HttpGw(int port) {
+        this.servidores = new ServersInfo();
         this.port = port;
     }
 
     public void start() throws IOException {
+        System.out.println("Listening on port " + port);
+        DatagramSocket socket = new DatagramSocket(port);
+        boolean runing = true;
+        while (runing) {
+            byte[] buf = new byte[256];
+            DatagramPacket packet = new DatagramPacket(buf,buf.length);
+            socket.receive(packet);
+            System.out.println("Received connection from " + packet.getAddress());
+            Packet fsChunk = new Packet(packet.getData());
+            System.out.println(fsChunk.toString());
+        }
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        HttpGw server = new HttpGw(80);
+        server.start();
+    }
+
+    /*
+
+        public void start() throws IOException {
         ServerSocket socket = new ServerSocket(port);
         System.out.println("Listening on port " + port);
         Socket client;
@@ -26,13 +45,7 @@ public class HttpGw {
             System.out.println("PATH: " + path);
 
         }
-    }
 
 
-    public static void main(String[] args) throws IOException {
-        HttpGw server = new HttpGw(80);
-        FFSrv s1 = new FFSrv("s1");
-        FFSrv s2 = new FFSrv("s1");
-        server.start();
-    }
+     */
 }
