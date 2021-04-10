@@ -63,7 +63,7 @@ public class ServersInfo {
         return r;
     }
 
-    public void renewServer(String server) {
+    public void renewServer(String server, InetAddress address) {
         String[] args = server.split(";"); // name;ip
         this.wl.lock();
         try {

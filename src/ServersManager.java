@@ -1,3 +1,4 @@
+import java.net.UnknownHostException;
 import java.util.Set;
 
 public class ServersManager extends Thread {
@@ -7,11 +8,11 @@ public class ServersManager extends Thread {
         this.servers = servers;
     }
 
-    private void handlePendingPackets(){
+    private void handlePendingPackets() throws UnknownHostException {
         Packet p;
         while((p = this.servers.popPacket()) != null) {
             if (p.getType() == 2) { // just making sure
-                this.servers.renewServer(p.getPayloadStr());
+                this.servers.renewServer(p.getPayloadStr(),p.getAddr());
             }
         }
     }
@@ -33,7 +34,7 @@ public class ServersManager extends Thread {
                 sweepServers();
 
                 sleep(1000);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | UnknownHostException e) {
                 e.printStackTrace();
             }
         }

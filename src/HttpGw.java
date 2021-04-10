@@ -14,6 +14,7 @@ public class HttpGw {
 
     public void start() throws IOException {
         System.out.println("Listening on port " + port);
+        System.out.println("I am " + InetAddress.getByName("localhost"));
         DatagramSocket socket = new DatagramSocket(port);
         boolean runing = true;
         while (runing) {
