@@ -10,11 +10,12 @@ public class UdpGw implements Runnable {
     private ClientInfo clientInfo;
     private ServersInfo serversInfo;
 
-    public UdpGw(ClientInfo clientInfo,PacketStack d, ServersInfo serversInfo,int port) {
+    public UdpGw(DatagramSocket socket,ClientInfo clientInfo,PacketStack d, ServersInfo serversInfo,int port) {
         this.clientInfo = clientInfo;
         this.dataStack = d;
         this.serversInfo = serversInfo;
         this.port = port;
+        this.socket = socket;
     }
 
     @Override
@@ -22,7 +23,6 @@ public class UdpGw implements Runnable {
         try {
             System.out.println("UdpGw Listening on port " + port);
             System.out.println("I am UdpGw on " + InetAddress.getLocalHost().getHostAddress());
-            this.socket = new DatagramSocket(this.port);
             boolean runing = true;
             while (runing) {
                 byte[] buf = new byte[256];

@@ -117,16 +117,14 @@ public class ServersInfo {
     }
 
 
-    public void renewServer(String server, InetAddress address, int port) {
-        String[] args = server.split(";"); // name;ip;port
+    public void renewServer(String name, InetAddress address, int port) {
+        // name
         this.wl.lock();
         try {
-            if (this.servers.containsKey(server))
-                this.servers.get(args[0]).setTimeUp(this.timeUpServer);
+            if (this.servers.containsKey(name))
+                this.servers.get(name).setTimeUp(this.timeUpServer);
             else
-                addServer(args[0], InetAddress.getByName(args[1]),port);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+                addServer(name, address,port);
         } finally {
             this.wl.unlock();
         }

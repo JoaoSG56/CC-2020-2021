@@ -19,8 +19,8 @@ public class HttpGw {
     }
 
     public void start() throws IOException {
-
-        new Thread(new UdpGw(this.clientInfo,this.packetStack, this.servidores,this.port)).start(); // inicializar UdpGw
+        DatagramSocket ds = new DatagramSocket(this.port);
+        new Thread(new UdpGw(ds,this.clientInfo,this.packetStack, this.servidores,this.port)).start(); // inicializar UdpGw
 
         /*
          inicializar ServersManager - responsável por
@@ -44,7 +44,7 @@ public class HttpGw {
             System.out.println("PATH: " + path);
             if (!path.equals("/")) {
                 this.clientInfo.addClient(idRequest,client);
-                new Thread(new ClientUdpHandler(new Request(idRequest++, client, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
+                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, client, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
             }
             else System.out.println("path impossível");
         }

@@ -22,6 +22,7 @@ class ServerRun {
         this.port = port;
         this.name = name;
         this.connectedServer = connectedServer;
+        System.out.println(this.address+"\n"+this.port);
     }
 
     private void handleRequest(Packet fsChunk) {
@@ -48,7 +49,7 @@ class ServerRun {
 
 
     public static void main(String[] args) throws SocketException, UnknownHostException {
-        System.out.println(args[0]);
+        System.out.println(args[0]+ " " + args[1]);
         ServerRun sr = new ServerRun(args[0], InetAddress.getByName(args[1]), Integer.parseInt(args[2]));
 
         Thread t = new Thread("aux") { // thread responsável por manter servidor vivo
@@ -78,10 +79,13 @@ class ServerRun {
         try {
 
             boolean running = true;
+            System.out.println("[10] Waiting for Requests!");
             while (running) {
                 byte[] buf = new byte[256];
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                System.out.println("[10] Ready for packet");
                 sr.socket.receive(packet);
+                System.out.println("[10] Got a Packet");
                 System.out.println("[10] ServerRun:> Received connection from :" + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
                 switch (fsChunk.getType()) {
