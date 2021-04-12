@@ -22,7 +22,7 @@ class ServerRun {
         this.port = port;
         this.name = name;
         this.connectedServer = connectedServer;
-        System.out.println(this.address+"\n"+this.port);
+        System.out.println(this.address.getHostAddress()+"\n"+this.port);
     }
 
     private void handleRequest(Packet fsChunk) {
@@ -32,11 +32,10 @@ class ServerRun {
             File filePath = new File(path + fsChunk.getPayloadStr());
 
             byte[] bytes = Files.readAllBytes(filePath.toPath());
-            byte[] buf = new byte[256];
             Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 4, 0, bytes);
 
             System.out.println("[10 DEBUG - handleRequest]:\n" + fsChunkPacket.toString());
-            buf = fsChunkPacket.packetToBytes();
+            byte[] buf = fsChunkPacket.packetToBytes();
             DatagramPacket packet = new DatagramPacket(buf, buf.length, this.address, this.port);
 
             this.socket.send(packet);
@@ -51,6 +50,12 @@ class ServerRun {
     public static void main(String[] args) throws SocketException, UnknownHostException {
         System.out.println(args[0]+ " " + args[1]);
         ServerRun sr = new ServerRun(args[0], InetAddress.getByName(args[1]), Integer.parseInt(args[2]));
+
+        System.out.println("[ServerRun] : {");
+        System.out.println(sr.address);
+        System.out.println(sr.address.getHostAddress());
+        System.out.println(sr.address.getHostName());
+        System.out.println("}");
 
         Thread t = new Thread("aux") { // thread responsável por manter servidor vivo
             private DatagramSocket socket = sr.socket;

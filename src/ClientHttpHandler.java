@@ -16,17 +16,17 @@ public class ClientHttpHandler extends Thread {
     public void run() {
         try {
             //this.ss = new ServerSocket(port);
-            System.out.println("[6] HttpClientHandler:> ready to send");
+            System.out.println("[1] HttpClientHandler:> ready to send");
             boolean running = true;
             Response s;
             while (running) {
                 if ((s = this.packetStack.pop_clientResponse()) != null) { // tem resposta
                     BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
-                    out.write(s.getData().toString());
+                    out.write("[1] teste : " + s.getData().toString());
                     out.flush();
                 }
                 else{
-                    System.out.println("[6] HttpClientHandler:> Sleeping...");
+                    System.out.println("[1] HttpClientHandler:> Sleeping...");
                     Thread.sleep(2000);
                 }
             }
