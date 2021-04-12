@@ -18,11 +18,10 @@ class ServerRun {
 
     ServerRun(String name, InetAddress connectedServer, int port) throws SocketException, UnknownHostException {
         this.socket = new DatagramSocket();
-        this.address = InetAddress.getByName("localhost");
+        this.address = InetAddress.getLocalHost();
         this.port = port;
         this.name = name;
         this.connectedServer = connectedServer;
-        System.out.println(this.address.getHostAddress()+"\n"+this.port);
     }
 
     private void handleRequest(Packet fsChunk) {
@@ -51,11 +50,12 @@ class ServerRun {
         System.out.println(args[0]+ " " + args[1]);
         ServerRun sr = new ServerRun(args[0], InetAddress.getByName(args[1]), Integer.parseInt(args[2]));
 
+
         System.out.println("[ServerRun] : {");
-        System.out.println(sr.address);
-        System.out.println(sr.address.getHostAddress());
-        System.out.println(sr.address.getHostName());
+        System.out.println(InetAddress.getLocalHost());
+        System.out.println(InetAddress.getByName("192.168.1.110").getHostAddress());
         System.out.println("}");
+
 
         Thread t = new Thread("aux") { // thread responsável por manter servidor vivo
             private DatagramSocket socket = sr.socket;
