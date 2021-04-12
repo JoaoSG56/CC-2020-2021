@@ -32,13 +32,13 @@ public class ClientUdpHandler extends Thread{
             System.out.println("[3] I am ClientHandlerUDP for Request " + request);
             FastFileSrv f;
             if((f = this.servidores.getFastFileSrv()) != null){
-                System.out.println("[5 - ClientdUdpHandler] Server found : " + f.getName() + "|end");
+                System.out.println("[5] - ClientUdpHandler] Server found : " + f.getName() + "|end");
                 Packet p = new Packet(this.request.getId(),this.address.getHostAddress()+":"+0+":"+this.port,5,0,this.request.getPathRequest().getBytes());
                 byte[] buf = p.packetToBytes();
-                System.out.println("[5 - ClientUdpHandler] IP: " + f.getIp().getHostAddress()+"\nPort: " + f.getPort());
+                System.out.println("[5] - ClientUdpHandler] IP: " + f.getIp().getHostAddress()+"\nPort: " + f.getPort());
                 DatagramPacket packet = new DatagramPacket(buf, buf.length,f.getIp(),f.getPort());
                 socket.send(packet);
-                System.out.println("[5 - ClientUdpHandler] Packet sent");
+                System.out.println("[5] - ClientUdpHandler] Packet sent");
             }
         } catch (IOException e) {
             System.out.println("exceção");
