@@ -51,6 +51,10 @@ public class Packet {
 
     }
 
+    public int getPort(){
+        return Integer.parseInt(this.transferKey.split(":")[2]);
+    }
+
     public int getPacketID(){
         return this.packetID;
     }

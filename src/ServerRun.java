@@ -53,7 +53,7 @@ class ServerRun {
 
         Thread t = new Thread("aux") { // thread responsável por manter servidor vivo
             private DatagramSocket socket = sr.socket;
-            private byte[] buf = new Packet(-1, sr.address.getHostAddress() + ":" + 0 + ":" + sr.port, 2, 0, (sr.name + ";" + sr.port).getBytes()).packetToBytes();
+            private byte[] buf = new Packet(-1, sr.address.getHostAddress() + ":" + 0 + ":" + sr.port, 2, 0, sr.name.getBytes()).packetToBytes();
             private DatagramPacket packet = new DatagramPacket(buf, buf.length, sr.connectedServer, sr.port);
 
             public void run() {

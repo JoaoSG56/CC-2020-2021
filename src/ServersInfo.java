@@ -26,10 +26,10 @@ public class ServersInfo {
         //this.packetsToProcess = new Stack<>();
     }
 
-    public void addServer(String n, InetAddress ip, String port) {
+    public void addServer(String n, InetAddress ip, int port) {
         this.wl.lock();
         try {
-            this.servers.put(n, new FastFileSrv(n, ip, timeUpServer,Integer.parseInt(port)));
+            this.servers.put(n, new FastFileSrv(n, ip, timeUpServer,port));
         } finally {
             this.wl.unlock();
         }
@@ -117,14 +117,14 @@ public class ServersInfo {
     }
 
 
-    public void renewServer(String server, InetAddress address) {
+    public void renewServer(String server, InetAddress address, int port) {
         String[] args = server.split(";"); // name;ip;port
         this.wl.lock();
         try {
             if (this.servers.containsKey(server))
                 this.servers.get(args[0]).setTimeUp(this.timeUpServer);
             else
-                addServer(args[0], InetAddress.getByName(args[1]),args[2]);
+                addServer(args[0], InetAddress.getByName(args[1]),port);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } finally {

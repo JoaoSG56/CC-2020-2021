@@ -16,7 +16,7 @@ public class ServersManager extends Thread {
         Packet p;
         while((p = this.servers.popPacket()) != null) {
             if (p.getType() == 2) { // just making sure
-                this.servers.renewServer(p.getPayloadStr(),p.getAddr());
+                this.servers.renewServer(p.getPayloadStr(),p.getAddr(),p.getPort());
             }
         }
     }
