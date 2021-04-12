@@ -20,6 +20,7 @@ public class PacketStack {
         this.clientRequests = new Stack<>();
         this.toSendToFast = new Stack<>();
         this.clientRequests = new Stack<>();
+        this.clientResponses = new Stack<>();
     }
 
     public void push_toSendToFast(Packet p) {

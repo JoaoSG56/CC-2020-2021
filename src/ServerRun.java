@@ -35,7 +35,7 @@ class ServerRun {
                 while (running) {
                     try {
                         socket.send(packet);
-                        Thread.sleep(10000);
+                        sleep(10000);
                     } catch (InterruptedException | IOException e) {
                         e.printStackTrace();
                         running = false;

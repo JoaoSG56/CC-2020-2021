@@ -17,6 +17,7 @@ public class ServersInfo {
 
     public ServersInfo() {
         this.servers = new HashMap<>();
+        this.packetsToProcess = new Stack<>();
         //this.packetsToProcess = new Stack<>();
     }
 

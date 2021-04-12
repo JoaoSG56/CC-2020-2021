@@ -26,7 +26,7 @@ public class ClientHttpHandler extends Thread {
                     out.flush();
                 }
                 else{
-                    System.out.println("[26 HttpClientHandler:> Sleeping...");
+                    System.out.println("[6] HttpClientHandler:> Sleeping...");
                     Thread.sleep(2000);
                 }
             }
