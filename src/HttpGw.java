@@ -2,12 +2,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.HashMap;
 
 public class HttpGw {
     private int port;
     private ServersInfo servidores;
     private PacketStack packetStack;
+    private ClientInfo clientInfo;
     private int idPacket; // not used for now
 
     public HttpGw(int port) {
@@ -15,11 +15,12 @@ public class HttpGw {
         this.servidores = new ServersInfo(); // não precisa do acesso
         this.port = port;
         this.idPacket = 0;
+        this.clientInfo = new ClientInfo();
     }
 
     public void start() throws IOException {
 
-        new Thread(new UdpGw(this.packetStack, this.servidores)).start(); // inicializar UdpGw
+        new Thread(new UdpGw(this.clientInfo,this.packetStack, this.servidores,this.port)).start(); // inicializar UdpGw
 
         /*
          inicializar ServersManager - responsável por
@@ -28,6 +29,9 @@ public class HttpGw {
         new ServersManager(this.servidores).start();
 
         // falta inicializar thread responsável por devolver resposta ao cliente
+        new ClientHttpHandler(this.packetStack,this.port).start();
+
+
 
         int idRequest = 0;
         ServerSocket socket = new ServerSocket(port);
@@ -38,9 +42,11 @@ public class HttpGw {
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             String path = in.readLine().split(" ")[1];
             System.out.println("PATH: " + path);
-
-            this.packetStack.push_clientRequest(new Request(idRequest++,client,path));
-
+            if (!path.equals("/")) {
+                this.clientInfo.addClient(idRequest,client);
+                new Thread(new ClientUdpHandler(new Request(idRequest++, client, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
+            }
+            else System.out.println("path impossível");
         }
     }
 

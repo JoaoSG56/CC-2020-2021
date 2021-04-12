@@ -51,6 +51,10 @@ public class Packet {
 
     }
 
+    public int getPacketID(){
+        return this.packetID;
+    }
+
     public InetAddress getAddr() throws UnknownHostException {
         return InetAddress.getByName(this.transferKey.split(":")[0]);
     }

@@ -5,19 +5,22 @@ public class FastFileSrv {
     private InetAddress ip;
     private int timeUp;
     private boolean occupied;
+    private int port;
 
     public FastFileSrv(String name, InetAddress ip){
         this.name = name;
         this.ip = ip;
         this.timeUp = 20;
+        this.port = 80;
         this.occupied = false;
     }
 
-    public FastFileSrv(String name, InetAddress ip, int timeUp){
+    public FastFileSrv(String name, InetAddress ip, int timeUp, int port){
         this.name = name;
         this.ip = ip;
         this.timeUp = timeUp;
         this.occupied = false;
+        this.port = port;
     }
 
     public FastFileSrv(FastFileSrv f){
@@ -25,6 +28,7 @@ public class FastFileSrv {
         this.ip = f.getIp();
         this.timeUp = f.getTimeUp();
         this.occupied = f.isOccupied();
+        this.port = f.getPort();
     }
 
     public int getTimeUp(){
@@ -33,6 +37,10 @@ public class FastFileSrv {
 
     public InetAddress getIp(){
         return this.ip;
+    }
+
+    public int getPort(){
+        return this.port;
     }
 
     public String getName(){
