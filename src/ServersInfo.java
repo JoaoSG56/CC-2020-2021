@@ -11,18 +11,18 @@ public class ServersInfo {
     private final Lock rl = l.readLock();
     private final Lock wl = l.writeLock();
     private Map<String, FastFileSrv> servers;
-    private Stack<Packet> packetsToProcess;
+    //private Stack<Packet> packetsToProcess;
     private final int timeUpServer = 20;
 
 
     public ServersInfo() {
         this.servers = new HashMap<>();
-        this.packetsToProcess = new Stack<>();
+        //this.packetsToProcess = new Stack<>();
     }
 
     public ServersInfo(Map<String, FastFileSrv> s) {
         this.servers = s;
-        this.packetsToProcess = new Stack<>();
+        //this.packetsToProcess = new Stack<>();
     }
 
     public void addServer(String n, InetAddress ip) {
@@ -78,6 +78,23 @@ public class ServersInfo {
         }
     }
 
+    public FastFileSrv getFFSrv(){
+        this.wl.lock();
+        try {
+        if(this.servers.isEmpty()) return null;
+        for(FastFileSrv f : this.servers.values()){
+            if(!f.isOccupied())
+                f.setOccupied(true);
+                return f;
+        }
+        return null;
+
+        }finally {
+            this.wl.unlock();
+        }
+    }
+
+/*
     public void pushPacket(Packet p) {
         this.wl.lock();
         try {
@@ -90,10 +107,13 @@ public class ServersInfo {
     public Packet popPacket() {
         this.wl.lock();
         try {
+            if (this.packetsToProcess.empty()) return null;
             return this.packetsToProcess.pop();
         } finally {
             this.wl.unlock();
         }
     }
+    */
+
 
 }
