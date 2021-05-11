@@ -31,8 +31,8 @@ public class UdpGw implements Runnable {
                 System.out.println("Received connection from " + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
 
-                System.out.println(fsChunk.toString());
-                System.out.print("\n\n");
+//                System.out.println(fsChunk.toString());
+//                System.out.print("\n\n");
 
 
                 switch (fsChunk.getType()){
@@ -42,7 +42,10 @@ public class UdpGw implements Runnable {
                         break;
                     case 4:
                         // data
+                        System.out.println(fsChunk.toString());
+                        System.out.print("\n\n");
                         this.dataStack.push_clientResponse(new Response(this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
+                        this.clientInfo.removeClient(fsChunk.getPacketID());
                         break;
 
 

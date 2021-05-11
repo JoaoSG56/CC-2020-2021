@@ -4,12 +4,9 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 
 public class ClientHttpHandler extends Thread {
-    private int port;
-    //private ServerSocket ss;
     private PacketStack packetStack;
 
-    public ClientHttpHandler(PacketStack packetStack, int port) {
-        this.port = port;
+    public ClientHttpHandler(PacketStack packetStack) {
         this.packetStack = packetStack;
     }
 
@@ -21,12 +18,15 @@ public class ClientHttpHandler extends Thread {
             Response s;
             while (running) {
                 if ((s = this.packetStack.pop_clientResponse()) != null) { // tem resposta
+                    System.out.println("[ClientHttpHandler] encontrada resposta");
                     BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
-                    out.write("[1] teste : " + s.getData().toString());
+                    Packet p = s.getData();
+                    out.write(p.getPayloadStr().replace("\0",""));
                     out.flush();
+                    out.close();
                 }
                 else{
-                    System.out.println("[1] HttpClientHandler:> Sleeping...");
+                    //System.out.println("[1] HttpClientHandler:> Sleeping...");
                     Thread.sleep(2000);
                 }
             }

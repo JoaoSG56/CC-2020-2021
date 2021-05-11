@@ -32,7 +32,7 @@ public class ClientUdpHandler extends Thread{
             System.out.println("[3] I am ClientHandlerUDP for Request " + request);
             FastFileSrv f;
             if((f = this.servidores.getFastFileSrv()) != null){
-                System.out.println("[5] - ClientUdpHandler] Server found : " + f.getName() + "|end");
+                System.out.println("[5] - ClientUdpHandler] Server found : " + f.getName());
                 Packet p = new Packet(this.request.getId(),this.address.getHostAddress()+":"+0+":"+this.port,5,0,this.request.getPathRequest().getBytes());
                 byte[] buf = p.packetToBytes();
                 System.out.println("[5] - ClientUdpHandler] IP: " + f.getIp().getHostAddress()+"\nPort: " + f.getPort());
@@ -40,6 +40,8 @@ public class ClientUdpHandler extends Thread{
                 DatagramPacket packet = new DatagramPacket(buf, buf.length,f.getIp(),f.getPort());
                 socket.send(packet);
                 System.out.println("[5] - ClientUdpHandler] Packet sent");
+            } else {
+                System.out.println("[ClientUdpHandler] Server not found");
             }
         } catch (IOException e) {
             System.out.println("exceção");

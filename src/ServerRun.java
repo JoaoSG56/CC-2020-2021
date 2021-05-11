@@ -26,16 +26,25 @@ class ServerRun {
 
     private void handleRequest(Packet fsChunk) {
         try {
-            String path = "~/Files/";
+            String path = "/home/core/Files";
 
-            File filePath = new File(path + fsChunk.getPayloadStr());
+            System.out.println(fsChunk.getPayloadStr());
+            System.out.println(fsChunk.getPayloadStr().length());
+
+
+            String a = fsChunk.getPayloadStr().replace("\0","");
+            System.out.println(a);
+            System.out.println(a.length());
+
+            File filePath = new File(path + a);
+
 
             byte[] bytes = Files.readAllBytes(filePath.toPath());
             Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 4, 0, bytes);
 
             System.out.println("[10 DEBUG - handleRequest]:\n" + fsChunkPacket.toString());
             byte[] buf = fsChunkPacket.packetToBytes();
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, this.address, this.port);
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.port);
 
             this.socket.send(packet);
         } catch (IOException e) {

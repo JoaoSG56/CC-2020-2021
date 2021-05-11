@@ -9,57 +9,57 @@ public class PacketStack {
     //private final Lock wl = l.writeLock();
 
 
-    private Stack<Packet> toSendToFast;
-
-    private Stack<Request> clientRequests;
+//    private Stack<Packet> toSendToFast;
+//
+//    private Stack<Request> clientRequests;
 
     private Stack<Response> clientResponses;
 
 
     public PacketStack() {
-        this.clientRequests = new Stack<>();
-        this.toSendToFast = new Stack<>();
-        this.clientRequests = new Stack<>();
+//        this.clientRequests = new Stack<>();
+//        this.toSendToFast = new Stack<>();
+
         this.clientResponses = new Stack<>();
     }
+//
+//    public void push_toSendToFast(Packet p) {
+//        swl.lock();
+//        try {
+//            this.toSendToFast.push(p);
+//        } finally {
+//            swl.unlock();
+//        }
+//    }
+//
+//    public Packet pop_toSendToFast() {
+//        swl.lock();
+//        try {
+//            if (this.toSendToFast.empty()) return null;
+//            return this.toSendToFast.pop();
+//        } finally {
+//            swl.unlock();
+//        }
+//    }
 
-    public void push_toSendToFast(Packet p) {
-        swl.lock();
-        try {
-            this.toSendToFast.push(p);
-        } finally {
-            swl.unlock();
-        }
-    }
-
-    public Packet pop_toSendToFast() {
-        swl.lock();
-        try {
-            if (this.toSendToFast.empty()) return null;
-            return this.toSendToFast.pop();
-        } finally {
-            swl.unlock();
-        }
-    }
-
-    public void push_clientRequest(Request r) {
-        rwl.lock();
-        try {
-            this.clientRequests.push(r);
-        } finally {
-            rwl.unlock();
-        }
-    }
-
-    public Request pop_clientRequest() {
-        rwl.lock();
-        try {
-            if (this.clientRequests.empty()) return null;
-            return this.clientRequests.pop();
-        } finally {
-            rwl.unlock();
-        }
-    }
+//    public void push_clientRequest(Request r) {
+//        rwl.lock();
+//        try {
+//            this.clientRequests.push(r);
+//        } finally {
+//            rwl.unlock();
+//        }
+//    }
+//
+//    public Request pop_clientRequest() {
+//        rwl.lock();
+//        try {
+//            if (this.clientRequests.empty()) return null;
+//            return this.clientRequests.pop();
+//        } finally {
+//            rwl.unlock();
+//        }
+//    }
 
     public void push_clientResponse(Response r){
         rwl.lock();

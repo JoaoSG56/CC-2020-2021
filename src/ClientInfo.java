@@ -32,4 +32,13 @@ public class ClientInfo {
             wl.unlock();
         }
     }
+
+    public void removeClient(int key){
+        wl.lock();
+        try {
+            this.clients.remove(key);
+        }finally {
+            wl.unlock();
+        }
+    }
 }
