@@ -17,7 +17,7 @@ class ServerRun {
     private String name;
 
     ServerRun(String name, InetAddress connectedServer, int port) throws SocketException, UnknownHostException {
-        this.socket = new DatagramSocket();
+        this.socket = new DatagramSocket(80);
         this.address = InetAddress.getLocalHost();
         this.port = port;
         this.name = name;
@@ -49,12 +49,6 @@ class ServerRun {
     public static void main(String[] args) throws SocketException, UnknownHostException {
         System.out.println(args[0]+ " " + args[1]);
         ServerRun sr = new ServerRun(args[0], InetAddress.getByName(args[1]), Integer.parseInt(args[2]));
-
-
-        System.out.println("[ServerRun] : {");
-        System.out.println(InetAddress.getLocalHost());
-        System.out.println(InetAddress.getByName("192.168.1.110").getHostAddress());
-        System.out.println("}");
 
 
         Thread t = new Thread("aux") { // thread responsável por manter servidor vivo

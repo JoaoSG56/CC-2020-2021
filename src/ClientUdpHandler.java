@@ -36,6 +36,7 @@ public class ClientUdpHandler extends Thread{
                 Packet p = new Packet(this.request.getId(),this.address.getHostAddress()+":"+0+":"+this.port,5,0,this.request.getPathRequest().getBytes());
                 byte[] buf = p.packetToBytes();
                 System.out.println("[5] - ClientUdpHandler] IP: " + f.getIp().getHostAddress()+"\nPort: " + f.getPort());
+
                 DatagramPacket packet = new DatagramPacket(buf, buf.length,f.getIp(),f.getPort());
                 socket.send(packet);
                 System.out.println("[5] - ClientUdpHandler] Packet sent");
