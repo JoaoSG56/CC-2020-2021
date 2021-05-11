@@ -1,32 +1,54 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 
 public class HttpGw {
     private int port;
     private ServersInfo servidores;
-    private int idPacket;
+    private PacketStack packetStack;
+    private ClientInfo clientInfo;
+    private int idPacket; // not used for now
 
     public HttpGw(int port) {
-        this.servidores = new ServersInfo();
+        this.packetStack = new PacketStack();
+        this.servidores = new ServersInfo(); // não precisa do acesso
         this.port = port;
+        this.idPacket = 0;
+        this.clientInfo = new ClientInfo();
     }
 
     public void start() throws IOException {
-        System.out.println("Listening on port " + port);
-        System.out.println("I am " + InetAddress.getByName("localhost"));
-        DatagramSocket socket = new DatagramSocket(port);
-        boolean runing = true;
-        while (runing) {
-            byte[] buf = new byte[256];
-            DatagramPacket packet = new DatagramPacket(buf,buf.length);
-            socket.receive(packet);
-            System.out.println("Received connection from " + packet.getAddress());
-            Packet fsChunk = new Packet(packet.getData());
-            System.out.println(fsChunk.toString());
+        DatagramSocket ds = new DatagramSocket(this.port);
+        new Thread(new UdpGw(ds,this.clientInfo,this.packetStack, this.servidores,this.port)).start(); // inicializar UdpGw
+
+        /*
+         inicializar ServersManager - responsável por
+         manter servidores ativos
+         */
+        new ServersManager(this.servidores).start();
+
+        // falta inicializar thread responsável por devolver resposta ao cliente
+        new ClientHttpHandler(this.packetStack,this.port).start();
+
+
+
+        int idRequest = 0;
+        ServerSocket socket = new ServerSocket(port);
+        System.out.println("HttpGw:> Listening on port " + port);
+        Socket client;
+        while ((client = socket.accept()) != null) {
+            System.out.println("Received connection from " + client.getRemoteSocketAddress().toString());
+            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            String path = in.readLine().split(" ")[1];
+            System.out.println("PATH: " + path);
+            if (!path.equals("/")) {
+                this.clientInfo.addClient(idRequest,client);
+                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, client, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
+            }
+            else System.out.println("path impossível");
         }
     }
-
 
     public static void main(String[] args) throws IOException {
         HttpGw server = new HttpGw(80);

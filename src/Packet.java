@@ -2,6 +2,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Packet {
 
@@ -32,6 +33,8 @@ public class Packet {
         String tKey;
         try {
             System.arraycopy(datagram, 4, destIp, 0, 4);
+            System.out.println(Arrays.toString(destIp));
+            System.out.println("[PACKET]: " + InetAddress.getByAddress(destIp));
             tKey = InetAddress.getByAddress(destIp).getHostAddress();
             tKey += ":" + ByteBuffer.wrap(datagram, 8, 4).getInt();
             tKey += ":" + ByteBuffer.wrap(datagram, 12, 4).getInt();
@@ -51,6 +54,14 @@ public class Packet {
 
     }
 
+    public int getPort(){
+        return Integer.parseInt(this.transferKey.split(":")[2]);
+    }
+
+    public int getPacketID(){
+        return this.packetID;
+    }
+
     public InetAddress getAddr() throws UnknownHostException {
         return InetAddress.getByName(this.transferKey.split(":")[0]);
     }
@@ -59,6 +70,7 @@ public class Packet {
         try {
             byte[] id = intToByteArray(this.packetID);
             String[] tkey = this.transferKey.split(":");
+            System.out.println("[PACKET to Bytes]: "+ tkey[0] + "\n"+InetAddress.getByName(tkey[0]).getHostAddress());
             byte[] ip_address = InetAddress.getByName(tkey[0]).getAddress();
             byte[] transferID = intToByteArray(Integer.parseInt(tkey[1]));
             byte[] port = intToByteArray(Integer.parseInt(tkey[2]));
