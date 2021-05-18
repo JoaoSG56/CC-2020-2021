@@ -53,6 +53,21 @@ public class ServersInfo {
         }
     }
 
+    public void freeServer(InetAddress add, int port){
+        this.wl.lock();
+        try {
+            for(FastFileSrv f: this.servers.values()){
+                if(f.getIp().equals(add) && f.getPort()==port){
+                    System.out.println("[ServersInfo] Found server: Going to free");
+                    f.setOccupied(false);
+                    return;
+                }
+            }
+        }finally {
+            this.wl.unlock();
+        }
+    }
+
     public List<FastFileSrv> getFastFileSrvs() {
         List<FastFileSrv> r = new ArrayList<>();
         this.rl.lock();
