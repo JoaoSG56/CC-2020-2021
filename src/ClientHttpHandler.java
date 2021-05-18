@@ -40,6 +40,7 @@ public class ClientHttpHandler extends Thread {
                         System.out.println("b");
 
                         Packet p = s.getData();
+                        if(p == null) System.out.println("whaat");
                         cStack.push(p);
 
                         new Thread(new Responder(out,cStack,null),"Responder").start();

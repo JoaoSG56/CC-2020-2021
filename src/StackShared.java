@@ -19,7 +19,9 @@ public class StackShared {
     public void push(Object o){
         this.wl.lock();
         try {
+            System.out.println("what");
             this.stack.push(o);
+            System.out.println("is going on");
         }finally {
             this.wl.unlock();
         }

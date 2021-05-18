@@ -34,8 +34,8 @@ class ServerRun {
 
 
             String a = fsChunk.getPayloadStr().replace("\0","");
-            System.out.println(a);
-            System.out.println(a.length());
+//            System.out.println(a);
+//            System.out.println(a.length());
 
             File filePath = new File(path + a);
 
