@@ -10,11 +10,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 public class Responder implements Runnable {
     private BufferedWriter out;
     private Set<Packet> packetSet;
-    private Stack<Packet> stack;
+    private StackShared stack;
     Condition isNotEmpty;
 
 
-    public Responder(BufferedWriter out, Stack<Packet> stack,Condition isNotEmpty) {
+    public Responder(BufferedWriter out, StackShared stack,Condition isNotEmpty) {
         this.out = out;
         this.stack = stack;
         this.packetSet = new TreeSet<>(new PacketComparatorByOffset());
@@ -53,13 +53,13 @@ public class Responder implements Runnable {
         try {
             Packet packet;
             while (true) {
-                if ((packet = stack.pop()) != null) {
+                if ((packet = (Packet) stack.pop()) != null) {
                     packetSet.add(packet);
                     if (checkIfItsFull(packetSet))
                         break;
 
                 } else {
-                    Thread.sleep(1);
+                    Thread.sleep(1000);
                 }
             }
             for (Packet aux : packetSet) {

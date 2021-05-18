@@ -9,7 +9,7 @@ import java.util.*;
 
 public class ClientHttpHandler extends Thread {
     private PacketStack packetStack;
-    Map<Integer, Stack<Packet>> clientStacks;
+    Map<Integer,StackShared> clientStacks;
 
     public ClientHttpHandler(PacketStack packetStack) {
         this.packetStack = packetStack;
@@ -30,7 +30,7 @@ public class ClientHttpHandler extends Thread {
 
                     if(!clientStacks.containsKey(s.getId())) { // se não contém
 
-                        Stack<Packet> cStack = new Stack<>();
+                        StackShared cStack = new StackShared();
                         this.clientStacks.put(s.getId(), cStack);
 
                         System.out.println("a");
@@ -42,7 +42,7 @@ public class ClientHttpHandler extends Thread {
                         Packet p = s.getData();
                         cStack.push(p);
 
-                        new Thread(new Responder(out,cStack,null)).start();
+                        new Thread(new Responder(out,cStack,null),"Responder").start();
                     } else{
                         this.clientStacks.get(s.getId()).push(s.getData());
                     }

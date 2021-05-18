@@ -3,7 +3,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PacketStack {
-    private final Lock swl = new ReentrantReadWriteLock().writeLock();
     private final Lock rwl = new ReentrantReadWriteLock().writeLock();
 //    private final Lock rl = l.readLock();
     //private final Lock wl = l.writeLock();
