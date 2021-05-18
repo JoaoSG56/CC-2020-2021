@@ -58,7 +58,7 @@ public class ServersInfo {
         try {
             for(FastFileSrv f: this.servers.values()){
                 if(f.getIp().equals(add) && f.getPort()==port){
-                    System.out.println("[ServersInfo] Found server: Going to free");
+                    System.out.println("[ServersInfo] Found server: Freeing");
                     f.setOccupied(false);
                     return;
                 }

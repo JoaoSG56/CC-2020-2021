@@ -59,18 +59,3 @@ public class UdpGw implements Runnable {
     }
 }
 
-/*
-                byte[] buf = new byte[256];
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                socket.receive(packet);
-                System.out.println("Received connection from " + packet.getAddress());
-                Packet fsChunk = new Packet(packet.getData());
-                System.out.println(fsChunk.toString());
-            }
-        } catch (IOException e) {
-            System.out.println("exceção");
-            e.printStackTrace();
-        }
-    }
-}
- */
