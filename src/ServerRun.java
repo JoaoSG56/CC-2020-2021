@@ -43,20 +43,30 @@ class ServerRun {
             byte[] bytes = Files.readAllBytes(filePath.toPath());
             int chunks = (bytes.length%256 == 0)? bytes.length/256 : bytes.length/256 + 1;
             int atualOffset = 0;
+            int lastOffsetArray = 0;
             System.out.println("[ServerRun - handleRequest]:> sending " + chunks + " packets");
             for(int i = 0; i < chunks;i++){
                 int flag = (i == chunks-1)? 0 : 1; // última iteração
-                int end = (i==chunks-1) ? bytes.length - atualOffset : 256;
-                byte[] bytesChunk = Arrays.copyOfRange(bytes,atualOffset,atualOffset+end);
+                int end = (i==chunks-1) ? bytes.length - lastOffsetArray : 256;
+                int aux = lastOffsetArray+end;
+                System.out.println("[ServerRun - handleRequest]:>\n\tatualOffset: " +
+                        atualOffset +
+                        "\n\tatualoffset+end: " + aux +
+                        "\n\tlastOffsetArray: " + lastOffsetArray +
+                        "\n\tend: " + end +
+                        "\n\tlength bytes: " + bytes.length+
+                        "\n\ti: " + i + " : " + chunks);
+                byte[] bytesChunk = Arrays.copyOfRange(bytes,lastOffsetArray,lastOffsetArray+end);
                 Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, atualOffset, bytesChunk);
 
-                System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
+                //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
                 byte[] buf = fsChunkPacket.packetToBytes();
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.port);
 
                 this.socket.send(packet);
 
-                atualOffset += packet.getLength();
+                atualOffset += packet.getLength(); // offset para o packet
+                lastOffsetArray += end; // offset do array
 
             }
 

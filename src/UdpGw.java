@@ -28,7 +28,7 @@ public class UdpGw implements Runnable {
                 byte[] buf = new byte[256];
                 DatagramPacket packet = new DatagramPacket(buf,buf.length);
                 socket.receive(packet);
-                System.out.println("Received connection from " + packet.getAddress());
+                System.out.println("[UdpGw] Received connection from " + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
 
 //                System.out.println(fsChunk.toString());
@@ -42,12 +42,16 @@ public class UdpGw implements Runnable {
                         break;
                     case 4:
                         // data
-                        System.out.println(fsChunk.toString());
-                        System.out.print("\n\n");
-                        if(fsChunk.getFlag() == 0)
-                            serversInfo.freeServer(fsChunk.getAddr(),fsChunk.getPort());
+                        // System.out.println(fsChunk.toString());
+                        // System.out.print("\n\n");
+                        System.out.println("pushing new response ...");
                         this.dataStack.push_clientResponse(new Response(this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
-                        this.clientInfo.removeClient(fsChunk.getPacketID());
+                        if(fsChunk.getFlag() == 0) {
+                            System.out.println("freeing server ...");
+                            serversInfo.freeServer(fsChunk.getAddr(), fsChunk.getPort());
+                            this.clientInfo.removeClient(fsChunk.getPacketID());
+                        }
+
                         break;
 
 
