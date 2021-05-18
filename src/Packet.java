@@ -66,6 +66,14 @@ public class Packet {
         return InetAddress.getByName(this.transferKey.split(":")[0]);
     }
 
+    public int getOffset(){
+        return this.offset;
+    }
+
+    public int getFlag(){
+        return Integer.parseInt(this.transferKey.split(":")[1]);
+    }
+
     public byte[] packetToBytes() {
         try {
             byte[] id = intToByteArray(this.packetID);
@@ -115,6 +123,10 @@ public class Packet {
 
     public String getPayloadStr(){
         return new String(this.payload,StandardCharsets.UTF_8);
+    }
+
+    public int getLength(){
+        return this.payload.length + 24;
     }
 
 }

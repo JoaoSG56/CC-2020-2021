@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 /*
     Classe correspondende aos FastFileServers
@@ -40,13 +41,26 @@ class ServerRun {
 
 
             byte[] bytes = Files.readAllBytes(filePath.toPath());
-            Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 4, 0, bytes);
+            int chunks = (bytes.length%256 == 0)? bytes.length/256 : bytes.length/256 + 1;
+            int atualOffset = 0;
+            System.out.println("[ServerRun - handleRequest]:> sending " + chunks + " packets");
+            for(int i = 0; i < chunks;i++){
+                int flag = (i == chunks-1)? 0 : 1; // última iteração
+                int end = (i==chunks-1) ? bytes.length - atualOffset : 256;
+                byte[] bytesChunk = Arrays.copyOfRange(bytes,atualOffset,atualOffset+end);
+                Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, atualOffset, bytesChunk);
 
-            System.out.println("[10 DEBUG - handleRequest]:\n" + fsChunkPacket.toString());
-            byte[] buf = fsChunkPacket.packetToBytes();
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.port);
+                System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
+                byte[] buf = fsChunkPacket.packetToBytes();
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.port);
 
-            this.socket.send(packet);
+                this.socket.send(packet);
+
+                atualOffset += packet.getLength();
+
+            }
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,10 +123,6 @@ class ServerRun {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        {
-
-        }
-
 
         t.interrupt();
     }
