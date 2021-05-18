@@ -27,20 +27,25 @@ public class Responder implements Runnable {
     verificar que existe flag == 0 e offsets seguidos
     */
     public static boolean checkIfItsFull(Set<Packet> packets){
-        if(packets.size() == 1 || packets.size() == 0)
+        if(packets.size() == 0)
             return false;
         int lastOffSet = 0;
         int lastLPacket = 0;
+        int aux;
         boolean noFlag = false;
+        int i = 0;
         for(Packet p: packets){
-            System.out.println("[ClientHttpHandler-thread]: " +
-                    "\n\tlastOffSet+lastLPacket: " +
-                    lastOffSet+lastLPacket +
-                    "\n\tp.getOffset(): " +
-                    p.getOffset());
+            aux = lastOffSet+lastLPacket;
+            System.out.println("\n[Responder]: " +
+                            "\nindice : " + i +
+                            "\noffset : " + p.getOffset() +
+                            "\nlastOffSet: " + lastOffSet +
+                            "\nlastLPacket: " + lastLPacket);
+
             if(lastOffSet+lastLPacket != p.getOffset()) return false;
             lastOffSet = p.getOffset();
             lastLPacket = p.getLength();
+            System.out.println("[DEBUG]: " + p.getLength());
             if(p.getFlag() == 0) noFlag = true;
 
         }
@@ -54,11 +59,15 @@ public class Responder implements Runnable {
             Packet packet;
             while (true) {
                 if ((packet = (Packet) stack.pop()) != null) {
+                    System.out.println("[Responder]: Pacote adicionado!");
                     packetSet.add(packet);
-                    if (checkIfItsFull(packetSet))
+                    if (checkIfItsFull(packetSet)) {
+                        System.out.println("[Responder]: Todos os pacotes ok!");
                         break;
+                    }
 
-                } else {
+                } else { // adicionar timeout?
+                    System.out.println("Falta algum pacote");
                     Thread.sleep(1000);
                 }
             }
@@ -66,6 +75,7 @@ public class Responder implements Runnable {
                 out.write(aux.getPayloadStr().replace("\0", ""));
                 out.flush();
             }
+            System.out.println("[Responder] Closing Socket ...");
             out.close();
 
         } catch (IOException e) {

@@ -39,15 +39,16 @@ class ServerRun {
 
             File filePath = new File(path + a);
 
+            int maxLength = 256 - 24;
 
             byte[] bytes = Files.readAllBytes(filePath.toPath());
-            int chunks = (bytes.length%256 == 0)? bytes.length/256 : bytes.length/256 + 1;
+            int chunks = (bytes.length%maxLength == 0)? bytes.length/maxLength : bytes.length/maxLength + 1;
             int atualOffset = 0;
             int lastOffsetArray = 0;
             System.out.println("[ServerRun - handleRequest]:> sending " + chunks + " packets");
             for(int i = 0; i < chunks;i++){
                 int flag = (i == chunks-1)? 0 : 1; // última iteração
-                int end = (i==chunks-1) ? bytes.length - lastOffsetArray : 256;
+                int end = (i==chunks-1) ? bytes.length - lastOffsetArray : maxLength;
                 int aux = lastOffsetArray+end;
                 System.out.println("[ServerRun - handleRequest]:>\n\tatualOffset: " +
                         atualOffset +
@@ -98,6 +99,7 @@ class ServerRun {
                     } catch (InterruptedException | IOException e) {
                         e.printStackTrace();
                         running = false;
+                        System.out.println("[ServerRun] Closing Socket ...");
                         socket.close();
                     }
                 }

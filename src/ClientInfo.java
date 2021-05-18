@@ -24,10 +24,19 @@ public class ClientInfo {
         }
     }
 
+    public int getLength(){
+        rl.lock();
+        try {
+            return this.clients.size();
+        }finally {
+            rl.unlock();
+        }
+    }
+
     public Socket getClient(int key) {
         wl.lock();
         try {
-            return this.clients.remove(key);
+            return this.clients.get(key);
         } finally {
             wl.unlock();
         }

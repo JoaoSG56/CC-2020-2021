@@ -6,11 +6,11 @@ public class UdpGw implements Runnable {
 
     private int port;
     private DatagramSocket socket;
-    private PacketStack dataStack;
+    private StackShared dataStack;
     private ClientInfo clientInfo;
     private ServersInfo serversInfo;
 
-    public UdpGw(DatagramSocket socket,ClientInfo clientInfo,PacketStack d, ServersInfo serversInfo,int port) {
+    public UdpGw(DatagramSocket socket,ClientInfo clientInfo,StackShared d, ServersInfo serversInfo,int port) {
         this.clientInfo = clientInfo;
         this.dataStack = d;
         this.serversInfo = serversInfo;
@@ -28,7 +28,7 @@ public class UdpGw implements Runnable {
                 byte[] buf = new byte[256];
                 DatagramPacket packet = new DatagramPacket(buf,buf.length);
                 socket.receive(packet);
-                System.out.println("[UdpGw] Received connection from " + packet.getAddress());
+                //System.out.println("[UdpGw] Received connection from " + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
 
 //                System.out.println(fsChunk.toString());
@@ -44,12 +44,13 @@ public class UdpGw implements Runnable {
                         // data
                         // System.out.println(fsChunk.toString());
                         // System.out.print("\n\n");
-                        System.out.println("pushing new response ...");
-                        this.dataStack.push_clientResponse(new Response(fsChunk.getPacketID(),this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
+                        //System.out.println("pushing new response ...");
+                        System.out.println("[UdpGw] Packet ID : " + fsChunk.getPacketID());
+                        if(this.clientInfo.getClient(fsChunk.getPacketID()) != null) System.out.println("[UdpGw] problem solved - " + this.clientInfo.getLength());
+                        this.dataStack.push(new Response(fsChunk.getPacketID(),this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
                         if(fsChunk.getFlag() == 0) {
                             System.out.println("freeing server ...");
                             serversInfo.freeServer(fsChunk.getAddr(), fsChunk.getPort());
-                            this.clientInfo.removeClient(fsChunk.getPacketID());
                         }
 
                         break;

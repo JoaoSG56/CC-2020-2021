@@ -33,8 +33,8 @@ public class Packet {
         String tKey;
         try {
             System.arraycopy(datagram, 4, destIp, 0, 4);
-            System.out.println(Arrays.toString(destIp));
-            System.out.println("[PACKET]: " + InetAddress.getByAddress(destIp));
+            //System.out.println(Arrays.toString(destIp));
+            //System.out.println("[PACKET]: " + InetAddress.getByAddress(destIp));
             tKey = InetAddress.getByAddress(destIp).getHostAddress();
             tKey += ":" + ByteBuffer.wrap(datagram, 8, 4).getInt();
             tKey += ":" + ByteBuffer.wrap(datagram, 12, 4).getInt();

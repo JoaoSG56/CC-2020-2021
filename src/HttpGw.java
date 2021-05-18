@@ -6,12 +6,12 @@ import java.net.*;
 public class HttpGw {
     private int port;
     private ServersInfo servidores;
-    private PacketStack packetStack;
+    private StackShared packetStack;
     private ClientInfo clientInfo;
     private int idPacket; // not used for now
 
     public HttpGw(int port) {
-        this.packetStack = new PacketStack();
+        this.packetStack = new StackShared();
         this.servidores = new ServersInfo(); // não precisa do acesso
         this.port = port;
         this.idPacket = 0;
@@ -43,8 +43,9 @@ public class HttpGw {
             String path = in.readLine().split(" ")[1];
             System.out.println("PATH: " + path);
             if (!path.equals("/")) {
+                System.out.println("[HTTPGW] VAI ACRESCENTAR : " + idRequest + " Cliente : " + client);
                 this.clientInfo.addClient(idRequest,client);
-                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, client, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
+                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
             }
             else System.out.println("path impossível");
         }

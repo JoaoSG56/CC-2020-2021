@@ -8,10 +8,10 @@ import java.net.Socket;
 import java.util.*;
 
 public class ClientHttpHandler extends Thread {
-    private PacketStack packetStack;
+    private StackShared packetStack;
     Map<Integer,StackShared> clientStacks;
 
-    public ClientHttpHandler(PacketStack packetStack) {
+    public ClientHttpHandler(StackShared packetStack) {
         this.packetStack = packetStack;
         this.clientStacks = new HashMap<>();
     }
@@ -25,7 +25,7 @@ public class ClientHttpHandler extends Thread {
             boolean running = true;
             Response s;
             while (running) {
-                if ((s = this.packetStack.pop_clientResponse()) != null) { // tem resposta
+                if ((s = (Response) this.packetStack.pop()) != null) { // tem resposta
                     System.out.println("[ClientHttpHandler] encontrada resposta");
 
                     if(!clientStacks.containsKey(s.getId())) { // se não contém
@@ -33,11 +33,9 @@ public class ClientHttpHandler extends Thread {
                         StackShared cStack = new StackShared();
                         this.clientStacks.put(s.getId(), cStack);
 
-                        System.out.println("a");
                         if(s.getClientSocket() == null) System.out.println("[ClientHttpHandler] - getClientSocket");
                         System.out.println(s.getClientSocket().toString());
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
-                        System.out.println("b");
 
                         Packet p = s.getData();
                         if(p == null) System.out.println("whaat");

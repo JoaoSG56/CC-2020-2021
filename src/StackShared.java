@@ -7,9 +7,14 @@ public class StackShared {
 
     private Stack<Object> stack;
 
+    public StackShared(){
+        this.stack = new Stack<>();
+    }
+
     public Object pop(){
         this.wl.lock();
         try {
+            if(this.stack.empty()) return null;
             return this.stack.pop();
         }finally {
             this.wl.unlock();
@@ -19,9 +24,7 @@ public class StackShared {
     public void push(Object o){
         this.wl.lock();
         try {
-            System.out.println("what");
             this.stack.push(o);
-            System.out.println("is going on");
         }finally {
             this.wl.unlock();
         }
