@@ -9,7 +9,7 @@ import java.util.*;
 
 public class ClientHttpHandler extends Thread {
     private PacketStack packetStack;
-    Map<Socket, Stack<Packet>> clientStacks;
+    Map<Integer, Stack<Packet>> clientStacks;
 
     public ClientHttpHandler(PacketStack packetStack) {
         this.packetStack = packetStack;
@@ -28,12 +28,14 @@ public class ClientHttpHandler extends Thread {
                 if ((s = this.packetStack.pop_clientResponse()) != null) { // tem resposta
                     System.out.println("[ClientHttpHandler] encontrada resposta");
 
-                    if(!clientStacks.containsKey(s.getClientSocket())) {
+                    if(!clientStacks.containsKey(s.getId())) { // se não contém
 
                         Stack<Packet> cStack = new Stack<>();
-                        this.clientStacks.put(s.getClientSocket(), cStack);
+                        this.clientStacks.put(s.getId(), cStack);
 
                         System.out.println("a");
+                        if(s.getClientSocket() == null) System.out.println("[ClientHttpHandler] - getClientSocket");
+                        System.out.println(s.getClientSocket().toString());
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
                         System.out.println("b");
 
@@ -42,7 +44,7 @@ public class ClientHttpHandler extends Thread {
 
                         new Thread(new Responder(out,cStack,null)).start();
                     } else{
-                        this.clientStacks.get(s.getClientSocket()).push(s.getData());
+                        this.clientStacks.get(s.getId()).push(s.getData());
                     }
 
                 } else {

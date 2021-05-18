@@ -45,7 +45,7 @@ public class UdpGw implements Runnable {
                         // System.out.println(fsChunk.toString());
                         // System.out.print("\n\n");
                         System.out.println("pushing new response ...");
-                        this.dataStack.push_clientResponse(new Response(this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
+                        this.dataStack.push_clientResponse(new Response(fsChunk.getPacketID(),this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
                         if(fsChunk.getFlag() == 0) {
                             System.out.println("freeing server ...");
                             serversInfo.freeServer(fsChunk.getAddr(), fsChunk.getPort());
