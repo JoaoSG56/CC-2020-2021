@@ -1,20 +1,26 @@
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StackShared {
     private final Lock wl = new ReentrantReadWriteLock().writeLock();
+    private Condition condition = wl.newCondition();
     private Stack<Object> stack;
 
     public StackShared(){
         this.stack = new Stack<>();
     }
 
-    public Object pop(){
+    public Condition getCondition() {
+        return condition;
+    }
+
+    public Object pop() throws InterruptedException {
         this.wl.lock();
         try {
-            if(this.stack.empty()) return null;
+            if (this.stack.empty()) return null;
             return this.stack.pop();
         }finally {
             this.wl.unlock();
@@ -25,6 +31,18 @@ public class StackShared {
         this.wl.lock();
         try {
             this.stack.push(o);
+            //this.condition.signalAll();
+        }finally {
+            this.wl.unlock();
+        }
+    }
+
+    public Object iWannaPop() throws InterruptedException {
+        this.wl.lock();
+        try {
+            while (this.stack.empty())
+                this.condition.await(5,TimeUnit.SECONDS);
+            return this.stack.pop();
         }finally {
             this.wl.unlock();
         }

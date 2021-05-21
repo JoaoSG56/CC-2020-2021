@@ -80,8 +80,9 @@ public class Responder implements Runnable {
         try {
             Packet packet;
             int pStatus = 0;
+            packet = (Packet) stack.pop();
             while (true) {
-                if ((packet = (Packet) stack.pop()) != null) {
+                if (packet != null) {
                     System.out.println("[Responder]: Pacote adicionado!");
                     packetSet.add(packet);
                     if ((pStatus = checkIfItsFull(packetSet)) == -1) {
@@ -90,14 +91,18 @@ public class Responder implements Runnable {
                         sendACK(p);
                         break;
                     }
+                    packet = (Packet) stack.pop();
 
                 } else { // adicionar timeout?
                     System.out.println("[Responder] FALTA O PACKET COM O OFFSET: " + pStatus);
                     Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+1+":"+80,1,pStatus,("Falta 1 packet").getBytes());
-                    sendACK(p);
+                    //sendACK(p);
                     System.out.println("[Responder] ACK Sended");
-                    System.out.println(":\n" + p.toString() );
-                    Thread.sleep(8000);
+                    System.out.println(":\n" + p.toString());
+                    System.out.println("VOU DORMIR 5 SEGUNDOS PELO MENOS");
+                    packet = (Packet) stack.iWannaPop();
+                    System.out.println("ACORDEI");
+
                 }
             }
             for (Packet aux : packetSet) {
