@@ -41,13 +41,12 @@ public class UdpGw implements Runnable {
                         this.serversInfo.pushPacket(fsChunk);
                         break;
                     case 4:
-                        // data
-                        // System.out.println(fsChunk.toString());
-                        // System.out.print("\n\n");
-                        //System.out.println("pushing new response ...");
-                        System.out.println("[UdpGw] Packet ID : " + fsChunk.getPacketID());
-                        if(this.clientInfo.getClient(fsChunk.getPacketID()) != null) System.out.println("[UdpGw] problem solved - " + this.clientInfo.getLength());
-                        this.dataStack.push(new Response(fsChunk.getPacketID(),this.clientInfo.getClient(fsChunk.getPacketID()),fsChunk));
+                        //System.out.println("[UdpGw] Packet ID : " + fsChunk.getPacketID());
+                        Socket s;
+                        if((s =this.clientInfo.getClient(fsChunk.getPacketID())) != null) {
+                            //System.out.println("[UdpGw] problem solved - " + this.clientInfo.getLength());
+                            this.dataStack.push(new Response(fsChunk.getPacketID(), s, fsChunk,packet.getAddress()));
+                        }
                         if(fsChunk.getFlag() == 0) {
                             System.out.println("freeing server ...");
                             serversInfo.freeServer(fsChunk.getAddr(), fsChunk.getPort());

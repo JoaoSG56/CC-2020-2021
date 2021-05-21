@@ -41,10 +41,16 @@ public class ClientUdpHandler extends Thread{
                 socket.send(packet);
                 System.out.println("[5] - ClientUdpHandler] Packet sent");
             } else {
+                // falta aqui um await e signal na outra parte //
                 System.out.println("[ClientUdpHandler] Server not found");
+                Thread.sleep(1000);
             }
+
+
         } catch (IOException e) {
             System.out.println("exceção");
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

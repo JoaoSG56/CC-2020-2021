@@ -9,11 +9,13 @@ import java.util.*;
 
 public class ClientHttpHandler extends Thread {
     private StackShared packetStack;
-    Map<Integer,StackShared> clientStacks;
+    private DatagramSocket socket;
+    private Map<Integer,StackShared> clientStacks;
 
-    public ClientHttpHandler(StackShared packetStack) {
+    public ClientHttpHandler(StackShared packetStack,DatagramSocket socket) {
         this.packetStack = packetStack;
         this.clientStacks = new HashMap<>();
+        this.socket = socket;
     }
 
 
@@ -26,10 +28,10 @@ public class ClientHttpHandler extends Thread {
             Response s;
             while (running) {
                 if ((s = (Response) this.packetStack.pop()) != null) { // tem resposta
-                    System.out.println("[ClientHttpHandler] encontrada resposta");
+                    //System.out.println("[ClientHttpHandler] encontrada resposta");
 
                     if(!clientStacks.containsKey(s.getId())) { // se não contém
-
+                        // criar nova entrada para o packet com o id s.getId()
                         StackShared cStack = new StackShared();
                         this.clientStacks.put(s.getId(), cStack);
 
@@ -41,13 +43,15 @@ public class ClientHttpHandler extends Thread {
                         if(p == null) System.out.println("whaat");
                         cStack.push(p);
 
-                        new Thread(new Responder(out,cStack,null),"Responder").start();
+                        new Thread(new Responder(s.getId(),out,cStack,null,this.socket,s.getServer()),"Responder").start();
                     } else{
                         this.clientStacks.get(s.getId()).push(s.getData());
                     }
 
                 } else {
                     //System.out.println("[1] HttpClientHandler:> Sleeping...");
+                    // await e signal //
+                    System.out.println("já não deve ser preciso isto");
                     Thread.sleep(2000);
                 }
             }

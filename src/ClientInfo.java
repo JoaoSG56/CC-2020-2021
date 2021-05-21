@@ -36,7 +36,9 @@ public class ClientInfo {
     public Socket getClient(int key) {
         wl.lock();
         try {
-            return this.clients.get(key);
+            if(this.clients.containsKey(key))
+                return this.clients.get(key);
+            return null;
         } finally {
             wl.unlock();
         }

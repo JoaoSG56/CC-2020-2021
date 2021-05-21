@@ -1,21 +1,25 @@
 import javax.xml.crypto.Data;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
 import java.util.Arrays;
+
 
 /*
     Classe correspondende aos FastFileServers
  */
 
 class ServerRun {
+    private final String path = "/home/core/Files";
     private DatagramSocket socket;
     private InetAddress address;
     private int port;
     private InetAddress connectedServer;
 
     private String name;
+    private String atualPath;
 
     ServerRun(String name, InetAddress connectedServer, int port) throws SocketException, UnknownHostException {
         this.socket = new DatagramSocket(80);
@@ -25,15 +29,48 @@ class ServerRun {
         this.connectedServer = connectedServer;
     }
 
+    private void handleRequest(Packet fsChunk, int offset) throws IOException, InterruptedException {
+        System.out.println("Failed to Send");
+
+        File filePath = new File(path + this.atualPath);
+        int maxLength = 256 - 24;
+
+        int actualOffset = (offset/ fsChunk.getLength()) * maxLength;
+        System.out.println("Offset received: " + offset + "\nACTUAL OFFSET = " + actualOffset);
+
+        byte[] bytes = Files.readAllBytes(filePath.toPath());
+
+        byte[] bytesChunk = Arrays.copyOfRange(bytes,offset,maxLength);
+
+
+        int flag = (filePath.length()==offset+bytesChunk.length) ? 0 : 1;
+        Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, offset, bytesChunk);
+
+        //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
+        byte[] bufToSend = fsChunkPacket.packetToBytes();
+        DatagramPacket packet = new DatagramPacket(bufToSend, bufToSend.length, this.connectedServer, this.port);
+
+        this.socket.send(packet);
+
+
+        System.out.println("SENT : \n\n"  + fsChunkPacket.toString());
+
+        Thread.sleep(8000);
+
+
+    }
+
+
     private void handleRequest(Packet fsChunk) {
         try {
-            String path = "/home/core/Files";
+
 
             System.out.println(fsChunk.getPayloadStr());
             System.out.println(fsChunk.getPayloadStr().length());
 
 
             String a = fsChunk.getPayloadStr().replace("\0","");
+            this.atualPath = a;
 //            System.out.println(a);
 //            System.out.println(a.length());
 
@@ -50,6 +87,7 @@ class ServerRun {
                 int flag = (i == chunks-1)? 0 : 1; // última iteração
                 int end = (i==chunks-1) ? bytes.length - lastOffsetArray : maxLength;
                 int aux = lastOffsetArray+end;
+                /*
                 System.out.println("[ServerRun - handleRequest]:>\n\tatualOffset: " +
                         atualOffset +
                         "\n\tatualoffset+end: " + aux +
@@ -57,6 +95,8 @@ class ServerRun {
                         "\n\tend: " + end +
                         "\n\tlength bytes: " + bytes.length+
                         "\n\ti: " + i + " : " + chunks);
+
+                 */
                 byte[] bytesChunk = Arrays.copyOfRange(bytes,lastOffsetArray,lastOffsetArray+end);
                 Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, atualOffset, bytesChunk);
 
@@ -123,6 +163,12 @@ class ServerRun {
                 System.out.println("[10] ServerRun:> Received connection from :" + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
                 switch (fsChunk.getType()) {
+                    case 1:
+                        System.out.println("RECEIVED ACK");
+                        if(fsChunk.getFlag() == 1){
+                            sr.handleRequest(fsChunk,fsChunk.getOffset());
+                        }
+                        break;
                     case 5:
                         sr.handleRequest(fsChunk);
                         break;
@@ -133,6 +179,8 @@ class ServerRun {
 
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 

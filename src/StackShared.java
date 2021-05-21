@@ -1,10 +1,10 @@
 import java.util.Stack;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StackShared {
     private final Lock wl = new ReentrantReadWriteLock().writeLock();
-
     private Stack<Object> stack;
 
     public StackShared(){
