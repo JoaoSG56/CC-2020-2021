@@ -29,7 +29,7 @@ public class HttpGw {
         new ServersManager(this.servidores).start();
 
         // falta inicializar thread responsável por devolver resposta ao cliente
-        new ClientHttpHandler(this.packetStack,ds).start();
+        new ClientHttpHandler(this.packetStack,ds,this.servidores).start();
 
 
 
@@ -52,7 +52,7 @@ public class HttpGw {
     }
 
     public static void main(String[] args) throws IOException {
-        HttpGw server = new HttpGw(80);
+        HttpGw server = new HttpGw(8080);
         server.start();
     }
 

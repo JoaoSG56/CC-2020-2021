@@ -85,7 +85,12 @@ public class Packet {
 
             byte[] type = intToByteArray(this.type);
             byte[] offset = intToByteArray(this.offset);
-            byte[] data = new byte[24 + this.payload.length];
+
+            int length = 0;
+            if(this.payload != null)
+                length = this.payload.length;
+
+            byte[] data = new byte[24 + length];
 
             System.arraycopy(id,0,data,0,4);
             System.arraycopy(ip_address,0,data,4,4);
@@ -93,7 +98,8 @@ public class Packet {
             System.arraycopy(port,0,data,12,4);
             System.arraycopy(type,0,data,16,4);
             System.arraycopy(offset,0,data,20,4);
-            System.arraycopy(this.payload,0,data,24,this.payload.length);
+            if(length != 0)
+                System.arraycopy(this.payload,0,data,24,length);
             return data;
         } catch (UnknownHostException e) {
             e.printStackTrace();

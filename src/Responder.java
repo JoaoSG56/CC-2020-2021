@@ -18,9 +18,11 @@ public class Responder implements Runnable {
     private DatagramSocket socket;
     private int packetID;
     private InetAddress fromServer;
+    private int fromPort;
+    private ServersInfo servidores;
 
 
-    public Responder(int id, BufferedWriter out, StackShared stack, Condition isNotEmpty, DatagramSocket socket, InetAddress server) {
+    public Responder(int id, BufferedWriter out, StackShared stack, Condition isNotEmpty, DatagramSocket socket, InetAddress server,int port,ServersInfo serversInfo) {
         this.packetID = id;
         this.out = out;
         this.stack = stack;
@@ -28,6 +30,8 @@ public class Responder implements Runnable {
         this.isNotEmpty = isNotEmpty;
         this.socket =socket;
         this.fromServer = server;
+        this.fromPort = port;
+        this.servidores = serversInfo;
     }
 
     /*
@@ -89,6 +93,8 @@ public class Responder implements Runnable {
                         System.out.println("[Responder]: Todos os pacotes ok!");
                         Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+0+":"+80,1,pStatus,("está tudo").getBytes());
                         sendACK(p);
+                        System.out.println("[Responder] Freeing Server ...");
+                        this.servidores.freeServer(this.fromServer,this.fromPort);
                         break;
                     }
                     packet = (Packet) stack.pop();

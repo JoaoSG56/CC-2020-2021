@@ -1,6 +1,4 @@
-import javax.xml.crypto.Data;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
@@ -12,21 +10,26 @@ import java.util.Arrays;
  */
 
 class ServerRun {
-    private final String path = "/home/core/Files";
+    private final String path = "/Users/joao";
     private DatagramSocket socket;
     private InetAddress address;
-    private int port;
+    private int portConnected;
     private InetAddress connectedServer;
-
+    private int port;
     private String name;
     private String atualPath;
 
-    ServerRun(String name, InetAddress connectedServer, int port) throws SocketException, UnknownHostException {
+    ServerRun(String name, InetAddress connectedServer, int portConnected) throws SocketException, UnknownHostException {
         this.socket = new DatagramSocket(80);
         this.address = InetAddress.getLocalHost();
-        this.port = port;
+        this.portConnected = portConnected;
         this.name = name;
         this.connectedServer = connectedServer;
+        this.port = 80;
+    }
+
+    private String getTransferID(int flag){
+        return this.address.getHostAddress() + ":"+flag+":"+this.port;
     }
 
     private void handleRequest(Packet fsChunk, int offset) throws IOException, InterruptedException {
@@ -48,7 +51,7 @@ class ServerRun {
 
         //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
         byte[] bufToSend = fsChunkPacket.packetToBytes();
-        DatagramPacket packet = new DatagramPacket(bufToSend, bufToSend.length, this.connectedServer, this.port);
+        DatagramPacket packet = new DatagramPacket(bufToSend, bufToSend.length, this.connectedServer, this.portConnected);
 
         this.socket.send(packet);
 
@@ -102,7 +105,7 @@ class ServerRun {
 
                 //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
                 byte[] buf = fsChunkPacket.packetToBytes();
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.port);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.portConnected);
 
                 this.socket.send(packet);
 
@@ -113,7 +116,23 @@ class ServerRun {
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            /*
+            -> Não encontrou ficheiro / algo correu mal
+            -> Enviar end connection
+             */
+            System.out.println("[ServerRun] Ficheiro não encontrado!");
+            Packet pToSend = new Packet(fsChunk.getPacketID(),this.getTransferID(0),3,0,null);
+
+            byte[] buf = pToSend.packetToBytes();
+            DatagramPacket packet = new DatagramPacket(buf,buf.length,this.connectedServer,this.portConnected );
+            try {
+                System.out.println("[ServerRun] A fechar ligação ...");
+                this.socket.send(packet);
+            } catch (IOException ioException) {
+                System.out.println("[ServerRun] ERROR!");
+                ioException.printStackTrace();
+            }
+
         }
 
 
@@ -128,7 +147,7 @@ class ServerRun {
         Thread t = new Thread("aux") { // thread responsável por manter servidor vivo
             private DatagramSocket socket = sr.socket;
             private byte[] buf = new Packet(-1, sr.address.getHostAddress() + ":" + 0 + ":" + sr.port, 2, 0, sr.name.getBytes()).packetToBytes();
-            private DatagramPacket packet = new DatagramPacket(buf, buf.length, sr.connectedServer, sr.port);
+            private DatagramPacket packet = new DatagramPacket(buf, buf.length, sr.connectedServer, sr.portConnected);
 
             public void run() {
                 boolean running = true;

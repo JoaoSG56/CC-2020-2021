@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +48,11 @@ public class ClientInfo {
     public void removeClient(int key){
         wl.lock();
         try {
-            this.clients.remove(key);
-        }finally {
+            this.clients.remove(key).close();
+        } catch (IOException e) {
+            System.out.println("[ClientInfo] Erro ao fechar socket!");
+            e.printStackTrace();
+        } finally {
             wl.unlock();
         }
     }

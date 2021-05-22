@@ -1,17 +1,17 @@
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Response {
     private int id;
     private Socket clientSocket;
     private Packet data;
-    private InetAddress fromServer;
 
-    public Response(int id, Socket clientSocket, Packet data,InetAddress fromServer) {
+
+    public Response(int id, Socket clientSocket, Packet data) {
         this.id = id;
         this.clientSocket = clientSocket;
         this.data = data;
-        this.fromServer = fromServer;
     }
 
     public int getId(){
@@ -19,7 +19,16 @@ public class Response {
     }
 
     public InetAddress getServer(){
-        return this.fromServer;
+        try {
+            return this.data.getAddr();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public int getPort(){
+        return this.data.getPort();
     }
 
     public Socket getClientSocket() {
