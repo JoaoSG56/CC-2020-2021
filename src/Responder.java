@@ -20,9 +20,10 @@ public class Responder implements Runnable {
     private InetAddress fromServer;
     private int fromPort;
     private ServersInfo servidores;
+    private int myServerPort;
 
 
-    public Responder(int id, BufferedWriter out, StackShared stack, Condition isNotEmpty, DatagramSocket socket, InetAddress server,int port,ServersInfo serversInfo) {
+    public Responder(int id, BufferedWriter out, StackShared stack, Condition isNotEmpty, DatagramSocket socket, InetAddress server,int port,ServersInfo serversInfo,int myServerPort) {
         this.packetID = id;
         this.out = out;
         this.stack = stack;
@@ -32,6 +33,7 @@ public class Responder implements Runnable {
         this.fromServer = server;
         this.fromPort = port;
         this.servidores = serversInfo;
+        this.myServerPort = myServerPort;
     }
 
     /*
@@ -75,7 +77,7 @@ public class Responder implements Runnable {
     private void sendACK(Packet p) throws IOException {
         byte[] buf = p.packetToBytes();
 
-        DatagramPacket ackPacket = new DatagramPacket(buf,buf.length,this.fromServer,80);
+        DatagramPacket ackPacket = new DatagramPacket(buf,buf.length,this.fromServer,this.fromPort);
         this.socket.send(ackPacket);
     }
 
@@ -87,11 +89,18 @@ public class Responder implements Runnable {
             packet = (Packet) stack.pop();
             while (true) {
                 if (packet != null) {
-                    System.out.println("[Responder]: Pacote adicionado!");
-                    packetSet.add(packet);
+
+                    // acrescentar todos os packets da stack ao Set;
+                    do {
+                        System.out.println("[Responder]: Pacote adicionado!");
+                        packetSet.add(packet);
+                        packet = (Packet) stack.pop();
+                    }while (packet != null);
+
+
                     if ((pStatus = checkIfItsFull(packetSet)) == -1) {
                         System.out.println("[Responder]: Todos os pacotes ok!");
-                        Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+0+":"+80,1,pStatus,("está tudo").getBytes());
+                        Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+0+":"+this.myServerPort,1,pStatus,("está tudo").getBytes());
                         sendACK(p);
                         System.out.println("[Responder] Freeing Server ...");
                         this.servidores.freeServer(this.fromServer,this.fromPort);
@@ -101,7 +110,7 @@ public class Responder implements Runnable {
 
                 } else { // adicionar timeout?
                     System.out.println("[Responder] FALTA O PACKET COM O OFFSET: " + pStatus);
-                    Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+1+":"+80,1,pStatus,("Falta 1 packet").getBytes());
+                    Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+1+":"+this.myServerPort,1,pStatus,("Falta 1 packet").getBytes());
                     //sendACK(p);
                     System.out.println("[Responder] ACK Sended");
                     System.out.println(":\n" + p.toString());

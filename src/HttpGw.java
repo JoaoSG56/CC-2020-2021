@@ -29,7 +29,7 @@ public class HttpGw {
         new ServersManager(this.servidores).start();
 
         // falta inicializar thread responsável por devolver resposta ao cliente
-        new ClientHttpHandler(this.packetStack,ds,this.servidores).start();
+        new ClientHttpHandler(this.packetStack,ds,this.servidores,this.port).start();
 
 
 

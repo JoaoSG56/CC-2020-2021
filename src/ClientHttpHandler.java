@@ -10,12 +10,14 @@ public class ClientHttpHandler extends Thread {
     private DatagramSocket socket;
     private Map<Integer,StackShared> clientStacks;
     private ServersInfo servidores;
+    private int serverPort;
 
-    public ClientHttpHandler(StackShared packetStack,DatagramSocket socket,ServersInfo servidores) {
+    public ClientHttpHandler(StackShared packetStack,DatagramSocket socket,ServersInfo servidores,int serverPort) {
         this.packetStack = packetStack;
         this.clientStacks = new HashMap<>();
         this.socket = socket;
         this.servidores = servidores;
+        this.serverPort = serverPort;
     }
 
 
@@ -43,7 +45,7 @@ public class ClientHttpHandler extends Thread {
                         if(p == null) System.out.println("whaat");
                         cStack.push(p);
 
-                        new Thread(new Responder(s.getId(),out,cStack,null,this.socket,s.getServer(),s.getPort(),servidores),"Responder").start();
+                        new Thread(new Responder(s.getId(),out,cStack,null,this.socket,s.getServer(),s.getPort(),servidores,this.serverPort),"Responder").start();
                     } else{
                         this.clientStacks.get(s.getId()).push(s.getData());
                     }
