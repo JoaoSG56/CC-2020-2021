@@ -128,7 +128,7 @@ public class Packet {
     }
 
     public String getPayloadStr(){
-        return new String(this.payload,StandardCharsets.UTF_8);
+        return new String(this.payload,StandardCharsets.UTF_8).replace("\0","");
     }
 
     public int getLength(){

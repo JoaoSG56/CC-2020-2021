@@ -26,7 +26,7 @@ public class ServersManager extends Thread {
     private void sweepServers(){
         for (FastFileSrv f : this.servers.getFastFileSrvs()) {
             if (f.decrementTimeUp(1) <= 0) {
-                if(!f.isOccupied())
+                if(f.getOcupacao()==0)
                     this.servers.removeServer(f.getName());
             }
         }

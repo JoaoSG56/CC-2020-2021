@@ -13,9 +13,6 @@ public class StackShared {
         this.stack = new Stack<>();
     }
 
-    public Condition getCondition() {
-        return condition;
-    }
 
     public Object pop() throws InterruptedException {
         this.wl.lock();
@@ -31,9 +28,9 @@ public class StackShared {
         this.wl.lock();
         try {
             this.stack.push(o);
-            //this.condition.signalAll();
         }finally {
             this.wl.unlock();
+            this.condition.signalAll();
         }
     }
 

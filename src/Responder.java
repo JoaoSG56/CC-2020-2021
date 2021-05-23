@@ -87,6 +87,7 @@ public class Responder implements Runnable {
             Packet packet;
             int pStatus = 0;
             packet = (Packet) stack.pop();
+            int timeOut = 0;
             while (true) {
                 if (packet != null) {
 
@@ -111,10 +112,17 @@ public class Responder implements Runnable {
                 } else { // adicionar timeout?
                     System.out.println("[Responder] FALTA O PACKET COM O OFFSET: " + pStatus);
                     Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+1+":"+this.myServerPort,1,pStatus,("Falta 1 packet").getBytes());
-                    //sendACK(p);
+                    sendACK(p);
                     System.out.println("[Responder] ACK Sended");
                     System.out.println(":\n" + p.toString());
                     System.out.println("VOU DORMIR 5 SEGUNDOS PELO MENOS");
+                    timeOut++;
+                    if(timeOut == 5){
+                        p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+0+":"+this.myServerPort,3,pStatus,("TimeOut").getBytes());
+                        sendACK(p);
+                        out.close();
+                        return;
+                    }
                     packet = (Packet) stack.iWannaPop();
                     System.out.println("ACORDEI");
 

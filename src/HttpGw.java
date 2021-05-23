@@ -20,6 +20,7 @@ public class HttpGw {
 
     public void start() throws IOException {
         DatagramSocket ds = new DatagramSocket(this.port);
+
         new Thread(new UdpGw(ds,this.clientInfo,this.packetStack, this.servidores,this.port)).start(); // inicializar UdpGw
 
         /*
@@ -45,7 +46,7 @@ public class HttpGw {
             if (!path.equals("/")) {
                 System.out.println("[HTTPGW] VAI ACRESCENTAR : " + idRequest + " Cliente : " + client);
                 this.clientInfo.addClient(idRequest,client);
-                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, path), this.servidores, InetAddress.getLocalHost(), this.port)).start();
+                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, path), this.servidores, InetAddress.getLocalHost(), this.port,this.clientInfo)).start();
             }
             else System.out.println("path impossível");
         }

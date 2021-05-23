@@ -1,6 +1,8 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -10,6 +12,7 @@ public class ServersInfo {
     private ReadWriteLock l = new ReentrantReadWriteLock();
     private final Lock rl = l.readLock();
     private final Lock wl = l.writeLock();
+    private final Condition condition = wl.newCondition();
     private Map<String, FastFileSrv> servers;
     private Stack<Packet> packetsToProcess; // renew packets
     private final int timeUpServer = 20;
@@ -26,10 +29,10 @@ public class ServersInfo {
         //this.packetsToProcess = new Stack<>();
     }
 
-    public void addServer(String n, InetAddress ip, int port) {
+    public void addServer(String n, InetAddress ip, int port, int n_threads) {
         this.wl.lock();
         try {
-            this.servers.put(n, new FastFileSrv(n, ip, timeUpServer,port));
+            this.servers.put(n, new FastFileSrv(n, ip, timeUpServer,port,n_threads));
         } finally {
             this.wl.unlock();
         }
@@ -59,12 +62,13 @@ public class ServersInfo {
             for(FastFileSrv f: this.servers.values()){
                 if(f.getIp().equals(add) && f.getPort()==port){
                     System.out.println("[ServersInfo] Found server: Freeing");
-                    f.setOccupied(false);
+                    f.decrementOcupacao();
                     return;
                 }
             }
         }finally {
             this.wl.unlock();
+            this.condition.signalAll();
         }
     }
 
@@ -91,40 +95,28 @@ public class ServersInfo {
     public FastFileSrv getFastFileSrv(){
         this.wl.lock();
         try {
-            for(FastFileSrv f: this.servers.values()){
-                if(!f.isOccupied()){
-                    f.setOccupied(true);
-                    return f;
+            FastFileSrv best = null;
+            int timeOut = 0;
+            do {
+                float ocupation = 1;
+                for (FastFileSrv f : this.servers.values()) {
+                    if (f.getOcupacao() < ocupation) {
+                        ocupation = f.getOcupacao();
+                        best = f;
+                    }
                 }
-            }
-            return null;
-        } finally {
-            this.wl.unlock();
-        }
-    }
-
-    /*
-    classe que retorna n servidores que estejam livres
-    caso contrário, retorna null
-     */
-
-    public List<FastFileSrv> getFastFileSrv(int n) {
-        List<FastFileSrv> l = new ArrayList<>();
-        this.wl.lock();
-        try {
-            int i = 0;
-            for (FastFileSrv f : this.servers.values()) {
-                if (!f.isOccupied()) {
-                    f.setOccupied(true);
-                    l.add(f);
+                if (best != null)
+                    best.incrementOcupacao();
+                else {
+                    timeOut++;
+                    if(timeOut == 5)
+                        return null;
+                    this.condition.await(2, TimeUnit.SECONDS);
                 }
-                if (i >= n)
-                    return l;
-            }
-            // não foi satisfeita a condição
-            for (FastFileSrv f : l) {
-                f.setOccupied(false);
-            }
+            }while (best == null);
+            return best;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
             return null;
         } finally {
             this.wl.unlock();
@@ -132,14 +124,16 @@ public class ServersInfo {
     }
 
 
-    public void renewServer(String name, InetAddress address, int port) {
+    public void renewServer(String payloadStr, InetAddress address, int port) {
         // name
         this.wl.lock();
         try {
-            if (this.servers.containsKey(name))
-                this.servers.get(name).setTimeUp(this.timeUpServer);
+            String[] args = payloadStr.split(";");
+            int n_threads = (args.length==2)? Integer.parseInt(args[1]) : 1;
+            if (this.servers.containsKey(args[0]))
+                this.servers.get(args[0]).setTimeUp(this.timeUpServer);
             else
-                addServer(name, address,port);
+                addServer(args[0], address,port,n_threads);
         } finally {
             this.wl.unlock();
         }

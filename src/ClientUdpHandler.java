@@ -12,18 +12,15 @@ public class ClientUdpHandler extends Thread{
     private DatagramSocket socket;
     private InetAddress address;
     private int port;
+    ClientInfo clientInfo;
 
-    public ClientUdpHandler(DatagramSocket socket,Request r, ServersInfo servidores, InetAddress address, int port){
+    public ClientUdpHandler(DatagramSocket socket,Request r, ServersInfo servidores, InetAddress address, int port,ClientInfo clientInfo){
         this.request = r;
         this.servidores = servidores;
         this.port = port;
         this.address = address;
         this.socket = socket;
-    }
-
-    private List<FastFileSrv> getServersToUse(){
-        return this.servidores.getFastFileSrv(1);
-
+        this.clientInfo = clientInfo;
     }
 
     @Override
@@ -42,15 +39,13 @@ public class ClientUdpHandler extends Thread{
                 System.out.println("[5] - ClientUdpHandler] Packet sent");
             } else {
                 // falta aqui um await e signal na outra parte //
+                this.clientInfo.removeClient(this.request.getId());
                 System.out.println("[ClientUdpHandler] Server not found");
-                Thread.sleep(1000);
             }
 
 
         } catch (IOException e) {
             System.out.println("exceção");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
