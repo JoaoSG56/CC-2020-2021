@@ -45,7 +45,7 @@ public class ClientHttpHandler extends Thread {
                         if(p == null) System.out.println("whaat");
                         cStack.push(p);
 
-                        new Thread(new Responder(s.getId(),out,cStack,null,this.socket,s.getServer(),s.getPort(),servidores,this.serverPort),"Responder").start();
+                        new Thread(new Responder(s.getId(),out,cStack,this.socket,s.getServer(),s.getPort(),servidores,this.serverPort),"Responder").start();
                     } else{
                         this.clientStacks.get(s.getId()).push(s.getData());
                     }

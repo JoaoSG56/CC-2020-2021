@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpGw {
     private int port;
@@ -21,7 +23,9 @@ public class HttpGw {
     public void start() throws IOException {
         DatagramSocket ds = new DatagramSocket(this.port);
 
-        new Thread(new UdpGw(ds,this.clientInfo,this.packetStack, this.servidores,this.port)).start(); // inicializar UdpGw
+        AcksToConfirm acksToConfirm = new AcksToConfirm();
+
+        new Thread(new UdpGw(ds,this.clientInfo,this.packetStack, this.servidores,this.port,acksToConfirm)).start(); // inicializar UdpGw
 
         /*
          inicializar ServersManager - responsável por
@@ -46,7 +50,7 @@ public class HttpGw {
             if (!path.equals("/")) {
                 System.out.println("[HTTPGW] VAI ACRESCENTAR : " + idRequest + " Cliente : " + client);
                 this.clientInfo.addClient(idRequest,client);
-                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, path), this.servidores, InetAddress.getLocalHost(), this.port,this.clientInfo)).start();
+                new Thread(new ClientUdpHandler(ds,new Request(idRequest++, path), this.servidores, InetAddress.getLocalHost(), this.port,this.clientInfo,acksToConfirm)).start();
             }
             else System.out.println("path impossível");
         }

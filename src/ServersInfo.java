@@ -29,6 +29,10 @@ public class ServersInfo {
         //this.packetsToProcess = new Stack<>();
     }
 
+    public void decrementOcupacao(String serverName){
+        this.servers.get(serverName).decrementOcupacao();
+    }
+
     public void addServer(String n, InetAddress ip, int port, int n_threads) {
         this.wl.lock();
         try {
@@ -66,9 +70,9 @@ public class ServersInfo {
                     return;
                 }
             }
+            this.condition.signalAll();
         }finally {
             this.wl.unlock();
-            this.condition.signalAll();
         }
     }
 

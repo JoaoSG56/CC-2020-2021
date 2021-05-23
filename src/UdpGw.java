@@ -9,13 +9,15 @@ public class UdpGw implements Runnable {
     private StackShared dataStack;
     private ClientInfo clientInfo;
     private ServersInfo serversInfo;
+    private AcksToConfirm acksToConfirm;
 
-    public UdpGw(DatagramSocket socket,ClientInfo clientInfo,StackShared d, ServersInfo serversInfo,int port) {
+    public UdpGw(DatagramSocket socket,ClientInfo clientInfo,StackShared d, ServersInfo serversInfo,int port,AcksToConfirm acksToConfirm) {
         this.clientInfo = clientInfo;
         this.dataStack = d;
         this.serversInfo = serversInfo;
         this.port = port;
         this.socket = socket;
+        this.acksToConfirm = acksToConfirm;
     }
 
     @Override
@@ -36,6 +38,9 @@ public class UdpGw implements Runnable {
 
 
                 switch (fsChunk.getType()){
+                    case 1:
+                        this.acksToConfirm.removePacketId(fsChunk.getPacketID());
+                        break;
                     case 2:
                         // renew
                         this.serversInfo.pushPacket(fsChunk);

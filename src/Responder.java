@@ -14,7 +14,6 @@ public class Responder implements Runnable {
     private BufferedWriter out;
     private Set<Packet> packetSet;
     private StackShared stack;
-    Condition isNotEmpty;
     private DatagramSocket socket;
     private int packetID;
     private InetAddress fromServer;
@@ -23,12 +22,11 @@ public class Responder implements Runnable {
     private int myServerPort;
 
 
-    public Responder(int id, BufferedWriter out, StackShared stack, Condition isNotEmpty, DatagramSocket socket, InetAddress server,int port,ServersInfo serversInfo,int myServerPort) {
+    public Responder(int id, BufferedWriter out, StackShared stack, DatagramSocket socket, InetAddress server,int port,ServersInfo serversInfo,int myServerPort) {
         this.packetID = id;
         this.out = out;
         this.stack = stack;
         this.packetSet = new TreeSet<>(new PacketComparatorByOffset());
-        this.isNotEmpty = isNotEmpty;
         this.socket =socket;
         this.fromServer = server;
         this.fromPort = port;

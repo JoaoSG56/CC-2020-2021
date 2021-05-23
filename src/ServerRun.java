@@ -1,8 +1,7 @@
-import java.io.File;
 import java.io.IOException;
 import java.net.*;
-import java.nio.file.Files;
 import java.util.*;
+
 
 
 /*
@@ -10,16 +9,13 @@ import java.util.*;
  */
 
 class ServerRun {
-    private final String path = "/Users/joao";
     private DatagramSocket socket;
     private InetAddress address;
     private int portConnected;
     private InetAddress connectedServer;
     private int port;
     private String name;
-    private String atualPath;
     private int nThreads;
-
 
     ServerRun(String name, InetAddress connectedServer, int portConnected, int nThreads) throws SocketException, UnknownHostException {
         this.port = 80;
@@ -74,7 +70,10 @@ class ServerRun {
 
         Map<Integer, StackShared> packets = new HashMap<>(); // nº de thread -> stack partilhada
         Map<Integer, Integer> distributedPackets = new HashMap<>(); // nº de Thread -> lista de id packets que já/está a tratar
-        Random random = new Random();
+
+        new Thread(new ServerRunReceiver(packets,distributedPackets,nThreads,
+                                        sr.socket, sr.port,sr.address,
+                                        sr.connectedServer,sr.portConnected)).start();
 
         for (int i = 0; i < sr.nThreads; i++) {
             StackShared stackShared = new StackShared(); // inicializar stack por cada thread
@@ -85,51 +84,6 @@ class ServerRun {
             new Thread(new ServerRunThread(stackShared,sr.socket,sr.port,sr.address,sr.connectedServer,sr.portConnected)).start();
         }
 
-
-        try {
-            boolean running = true;
-            System.out.println("[10] Waiting for Requests!");
-            while (running) {
-                byte[] buf = new byte[256];
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                System.out.println("[10] Ready for packet");
-                sr.socket.receive(packet);
-                System.out.println("[10] Got a Packet");
-                System.out.println("[10] ServerRun:> Received connection from :" + packet.getAddress());
-                Packet fsChunk = new Packet(packet.getData());
-
-                if((fsChunk.getType() == 1 && fsChunk.getFlag() == 0) || fsChunk.getType() == 3){ // ACK / end connection
-                    for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
-                        if (entry.getValue() == fsChunk.getPacketID()) {
-                            distributedPackets.replace(entry.getKey(),-1);
-                        }
-                    }
-                }
-                boolean flag = false;
-                for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
-                    if (entry.getValue() == fsChunk.getPacketID()) {
-                        packets.get(entry.getKey()).push(fsChunk);
-                        flag = true;
-                    }
-                }
-                if(!flag){
-                    // random
-                    int nThread;
-                    do {
-                        nThread = random.nextInt(nThreads);
-                    }while (distributedPackets.get(nThreads) != -1); // encontrar um livre
-
-                    System.out.println("[ServerRun] Escolhido o Servidor: " + nThread);
-                    packets.get(nThread).push(fsChunk);
-                    distributedPackets.replace(nThread,fsChunk.getPacketID());
-                }
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        t.interrupt();
     }
 
 }
