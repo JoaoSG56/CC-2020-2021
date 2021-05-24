@@ -1,1 +1,1 @@
-java ServerRun s1 192.168.1.10:8080 4
+java ServerRun s1 10.1.1.1:8080 4

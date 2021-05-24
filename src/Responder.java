@@ -50,16 +50,17 @@ public class Responder implements Runnable {
         boolean noFlag = false;
         int i = 0;
         for(Packet p: packets){
+            /*
             System.out.println("\n[Responder]: " +
                             "\nindice : " + i +
                             "\noffset : " + p.getOffset() +
                             "\nlastOffSet: " + lastOffSet +
                             "\nlastLPacket: " + lastLPacket);
-
+             */
             if(lastOffSet+lastLPacket != p.getOffset()) return lastOffSet+lastLPacket; // retornar o packet que falta
             lastOffSet = p.getOffset();
             lastLPacket = p.getLength();
-            System.out.println("[DEBUG]: " + p.getLength());
+            //System.out.println("[DEBUG]: " + p.getLength());
             if(p.getFlag() == 0) noFlag = true;
 
         }
@@ -91,7 +92,7 @@ public class Responder implements Runnable {
 
                     // acrescentar todos os packets da stack ao Set;
                     do {
-                        System.out.println("[Responder]: Pacote adicionado!");
+                        //System.out.println("[Responder]: Pacote adicionado!");
                         packetSet.add(packet);
                         packet = (Packet) stack.pop();
                     }while (packet != null);
@@ -126,7 +127,19 @@ public class Responder implements Runnable {
 
                 }
             }
+            int length = 0;
+            for(Packet a: packetSet) {
+                length += a.getPayloadLength();
+            }
+
+            out.write("HTTP/1.0 200 OK\n");
+            out.write("Connection: close\n");
+            out.write("Content-Length: " + length + "\n");
+            out.write("Content-Type: text/txt\n");
+            out.write("\n");
             for (Packet aux : packetSet) {
+
+
                 out.write(aux.getPayloadStr().replace("\0", ""));
                 out.flush();
             }

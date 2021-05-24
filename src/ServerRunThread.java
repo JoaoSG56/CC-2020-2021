@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 public class ServerRunThread implements Runnable{
-    private final String path = "/Users/joao";
+    private final String path = "/home/core/Files";
     private DatagramSocket socket;
 
     private InetAddress connectedServer;
@@ -34,6 +34,21 @@ public class ServerRunThread implements Runnable{
         return this.address.getHostAddress() + ":"+flag+":"+this.port;
     }
 
+    private int sendPacket(int id, int flag, int offset, byte[] bytesChunk) throws IOException {
+        Packet fsChunkPacket = new Packet(id, getTransferID(flag), 4, offset, bytesChunk);
+
+
+        byte[] buf = fsChunkPacket.packetToBytes();
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.portConnected);
+
+        this.socket.send(packet);
+
+        System.out.println("SENT : \n\n"  + fsChunkPacket);
+
+        return packet.getLength();
+
+    }
+
     private void handleRequest(Packet fsChunk, int offset) throws IOException, InterruptedException {
         System.out.println("Failed to Send");
 
@@ -49,6 +64,9 @@ public class ServerRunThread implements Runnable{
 
 
         int flag = (filePath.length()==offset+bytesChunk.length) ? 0 : 1;
+
+        sendPacket(fsChunk.getPacketID(),flag,offset,bytesChunk);
+        /*
         Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, offset, bytesChunk);
 
         //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
@@ -56,11 +74,8 @@ public class ServerRunThread implements Runnable{
         DatagramPacket packet = new DatagramPacket(bufToSend, bufToSend.length, this.connectedServer, this.portConnected);
 
         this.socket.send(packet);
+         */
 
-
-        System.out.println("SENT : \n\n"  + fsChunkPacket.toString());
-
-        Thread.sleep(8000);
 
 
     }
@@ -100,6 +115,9 @@ public class ServerRunThread implements Runnable{
 
                  */
                 byte[] bytesChunk = Arrays.copyOfRange(bytes,lastOffsetArray,lastOffsetArray+end);
+                int length = sendPacket(fsChunk.getPacketID(),flag,atualOffset,bytesChunk);
+
+                /*
                 Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, atualOffset, bytesChunk);
 
                 //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
@@ -109,6 +127,8 @@ public class ServerRunThread implements Runnable{
                 this.socket.send(packet);
 
                 atualOffset += packet.getLength(); // offset para o packet
+                */
+                atualOffset += length;
                 lastOffsetArray += end; // offset do array
 
             }
