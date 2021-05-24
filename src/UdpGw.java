@@ -25,9 +25,9 @@ public class UdpGw implements Runnable {
         try {
             System.out.println("UdpGw Listening on port " + port);
             System.out.println("I am UdpGw on " + InetAddress.getLocalHost().getHostAddress());
-            boolean runing = true;
-            while (runing) {
-                byte[] buf = new byte[256];
+            boolean running = true;
+            while (running) {
+                byte[] buf = new byte[4096];
                 DatagramPacket packet = new DatagramPacket(buf,buf.length);
                 socket.receive(packet);
                 //System.out.println("[UdpGw] Received connection from " + packet.getAddress());

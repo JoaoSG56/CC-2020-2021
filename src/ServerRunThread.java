@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 public class ServerRunThread implements Runnable{
-    private final String path = "/home/core/Files";
+    private final String path = "/Users/luissobral/Desktop/documentos";
     private DatagramSocket socket;
 
     private InetAddress connectedServer;
@@ -53,14 +53,14 @@ public class ServerRunThread implements Runnable{
         System.out.println("Failed to Send");
 
         File filePath = new File(path + this.atualPath);
-        int maxLength = 256 - 24;
+        int maxLength = 4096 - 24;
 
         int actualOffset = (offset/ fsChunk.getLength()) * maxLength;
         System.out.println("Offset received: " + offset + "\nACTUAL OFFSET = " + actualOffset);
 
         byte[] bytes = Files.readAllBytes(filePath.toPath());
 
-        byte[] bytesChunk = Arrays.copyOfRange(bytes,offset,maxLength);
+        byte[] bytesChunk = Arrays.copyOfRange(bytes,actualOffset,maxLength);
 
 
         int flag = (filePath.length()==offset+bytesChunk.length) ? 0 : 1;
@@ -93,7 +93,7 @@ public class ServerRunThread implements Runnable{
 
             File filePath = new File(path + this.atualPath);
 
-            int maxLength = 256 - 24;
+            int maxLength = 4096 - 24;
 
             byte[] bytes = Files.readAllBytes(filePath.toPath());
             int chunks = (bytes.length%maxLength == 0)? bytes.length/maxLength : bytes.length/maxLength + 1;

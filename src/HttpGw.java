@@ -46,18 +46,6 @@ public class HttpGw {
             System.out.println("Received connection from " + client.getRemoteSocketAddress().toString());
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             String path = in.readLine().split(" ")[1];
-            String aux = in.readLine();
-            System.out.println(aux);
-            aux = in.readLine();
-            System.out.println(aux);
-            aux = in.readLine();
-            System.out.println(aux);
-            aux = in.readLine();
-            System.out.println(aux);
-
-            aux = in.readLine(); // keep alive
-            System.out.println(aux);
-
 
 
             System.out.println("PATH: " + path);

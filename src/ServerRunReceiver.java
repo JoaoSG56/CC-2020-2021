@@ -41,7 +41,7 @@ public class ServerRunReceiver implements Runnable {
             boolean running = true;
             System.out.println("[10] Waiting for Requests!");
             while (running) {
-                byte[] buf = new byte[256];
+                byte[] buf = new byte[4096];
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 System.out.println("[10] Ready for packet");
                 this.socket.receive(packet);
