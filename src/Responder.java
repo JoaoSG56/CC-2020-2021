@@ -127,7 +127,7 @@ public class Responder implements Runnable {
 
                 }
             }
-            int length = 0;
+            int length = 1;
             for(Packet a: packetSet) {
                 length += a.getPayloadLength();
             }

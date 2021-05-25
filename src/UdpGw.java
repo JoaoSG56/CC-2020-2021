@@ -1,4 +1,7 @@
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.*;
 
 
@@ -47,6 +50,8 @@ public class UdpGw implements Runnable {
                         break;
                     case 3:
                         // end connection
+                        
+                        this.serversInfo.freeServer(fsChunk.getAddr(),fsChunk.getPort());
                         this.clientInfo.removeClient(fsChunk.getPacketID());
                         break;
                     case 4:

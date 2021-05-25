@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 public class ServerRunThread implements Runnable{
-    private final String path = "/Users/luissobral/Desktop/documentos";
+    private final String path = "/home/core";
     private DatagramSocket socket;
 
     private InetAddress connectedServer;
