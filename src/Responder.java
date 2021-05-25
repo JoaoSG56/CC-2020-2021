@@ -92,6 +92,10 @@ public class Responder implements Runnable {
                     /*
                     Vericicar que é end connection
                      */
+                    if(packet.getType() == 3){
+                        System.out.println("Conection Ended");
+                        return;
+                    }
 
 
                     // acrescentar todos os packets da stack ao Set;

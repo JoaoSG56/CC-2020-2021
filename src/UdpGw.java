@@ -36,10 +36,6 @@ public class UdpGw implements Runnable {
                 //System.out.println("[UdpGw] Received connection from " + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
 
-//                System.out.println(fsChunk.toString());
-//                System.out.print("\n\n");
-
-
                 switch (fsChunk.getType()){
                     case 1:
                         this.acksToConfirm.removePacketId(fsChunk.getPacketID());
@@ -55,7 +51,22 @@ public class UdpGw implements Runnable {
                                         ou
                                 acrescentar flag
                          */
+                        System.out.println("Recebi end connection");
+                        Socket aux = this.clientInfo.getClient(fsChunk.getPacketID());
+                        System.out.println("\n\n\nEnd Conection\n\n\n");
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(aux.getOutputStream()));
+                        out.write("HTTP/1.0 404 NOT FOUND\n");
+                        out.write("Connection: close\n");
+                        out.flush();
+                        out.close();
+
+                        // para que Responder caso exista, dê exit
+                        this.dataStack.push(new Response(fsChunk.getPacketID(),aux,fsChunk));
+
+                        // diminuir ocupação do servidor
                         this.serversInfo.freeServer(fsChunk.getAddr(),fsChunk.getPort());
+
+                        // remover cliente
                         this.clientInfo.removeClient(fsChunk.getPacketID());
                         break;
                     case 4:

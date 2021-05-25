@@ -48,10 +48,7 @@ public class ClientInfo {
     public void removeClient(int key){
         wl.lock();
         try {
-            this.clients.remove(key).close();
-        } catch (IOException e) {
-            System.out.println("[ClientInfo] Erro ao fechar socket!");
-            e.printStackTrace();
+            this.clients.remove(key);
         } finally {
             wl.unlock();
         }

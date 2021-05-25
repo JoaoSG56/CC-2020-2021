@@ -1,7 +1,10 @@
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,21 @@ public class ClientUdpHandler extends Thread {
         this.acksToConfirm = acksToConfirm;
     }
 
+    private void sendServiceUnavailable(Socket s) {
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+
+            out.write("HTTP/1.0 503 Service Unavailable\n");
+            out.write("Connection: close\n");
+            out.flush();
+            out.close();
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public void run() {
         try {
@@ -32,19 +50,24 @@ public class ClientUdpHandler extends Thread {
             FastFileSrv f;
             int timeOut = 0;
             if ((f = this.servidores.getFastFileSrv()) != null) {
-                    System.out.println("[5] - ClientUdpHandler] Server found : " + f.getName());
-                    Packet p = new Packet(this.request.getId(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 5, 0, this.request.getPathRequest().getBytes());
-                    byte[] buf = p.packetToBytes();
-                    System.out.println("[5] - ClientUdpHandler] IP: " + f.getIp().getHostAddress() + "\nPort: " + f.getPort());
+                System.out.println("[5] - ClientUdpHandler] Server found : " + f.getName());
+                Packet p = new Packet(this.request.getId(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 5, 0, this.request.getPathRequest().getBytes());
+                byte[] buf = p.packetToBytes();
+                System.out.println("[5] - ClientUdpHandler] IP: " + f.getIp().getHostAddress() + "\nPort: " + f.getPort());
 
-                    DatagramPacket packet = new DatagramPacket(buf, buf.length, f.getIp(), f.getPort());
-                    this.acksToConfirm.addPacketId(this.request.getId());
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, f.getIp(), f.getPort());
+                this.acksToConfirm.addPacketId(this.request.getId());
                 do {
-                    if(timeOut>5){
+                    if (timeOut > 5) {
+                        System.out.println("[ClientUdpHandler] Server unnable to respond!");
                         this.acksToConfirm.removePacketId(this.request.getId());
                         this.servidores.decrementOcupacao(f.getName());
+                        // inserir mensagem
+                        Socket s = this.clientInfo.getClient(request.getId());
+                        sendServiceUnavailable(s);
+
+
                         this.clientInfo.removeClient(this.request.getId());
-                        System.out.println("[ClientUdpHandler] Server unnable to respond!");
                         return;
                     }
 
@@ -55,8 +78,12 @@ public class ClientUdpHandler extends Thread {
                 } while (!this.acksToConfirm.wasReceived(this.request.getId()));
             } else {
                 // falta aqui um await e signal na outra parte //
-                this.clientInfo.removeClient(this.request.getId());
+                // inserir mensagem
                 System.out.println("[ClientUdpHandler] Server not found");
+                Socket s = this.clientInfo.getClient(request.getId());
+                sendServiceUnavailable(s);
+
+                this.clientInfo.removeClient(this.request.getId());
             }
 
 

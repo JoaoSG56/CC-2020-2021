@@ -34,20 +34,31 @@ public class ClientHttpHandler extends Thread {
 
                     if(!clientStacks.containsKey(s.getId())) { // se não contém
                         // criar nova entrada para o packet com o id s.getId()
-                        StackShared cStack = new StackShared();
-                        this.clientStacks.put(s.getId(), cStack);
+                        if(s.getData().getType() == 3) {
+                            System.out.println("[ClientHttpHandler] Closing connection");
+                        }
+                        else {
+                            StackShared cStack = new StackShared();
+                            this.clientStacks.put(s.getId(), cStack);
 
-                        if(s.getClientSocket() == null) System.out.println("[ClientHttpHandler] - getClientSocket");
-                        System.out.println(s.getClientSocket().toString());
-                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
+                            if (s.getClientSocket() == null)
+                                System.out.println("[ClientHttpHandler] - getClientSocket");
+                            System.out.println(s.getClientSocket().toString());
+                            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
 
-                        Packet p = s.getData();
-                        if(p == null) System.out.println("whaat");
-                        cStack.push(p);
+                            Packet p = s.getData();
+                            if (p == null) System.out.println("whaat");
+                            cStack.push(p);
 
-                        new Thread(new Responder(s.getId(),out,cStack,this.socket,s.getServer(),s.getPort(),servidores,this.serverPort),"Responder").start();
+                            new Thread(new Responder(s.getId(), out, cStack, this.socket, s.getServer(), s.getPort(), servidores, this.serverPort), "Responder").start();
+                        }
                     } else{
-                        this.clientStacks.get(s.getId()).push(s.getData());
+                        if(s.getData().getType() == 3) {
+                            this.clientStacks.get(s.getId()).push(s.getData());
+                            this.clientStacks.remove(s.getId());
+                        }
+                        else
+                            this.clientStacks.get(s.getId()).push(s.getData());
                     }
 
                 } else {
