@@ -3,6 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -56,9 +57,16 @@ public class ServerRunReceiver implements Runnable {
                 } else {
 
                     if ((fsChunk.getType() == 1 && fsChunk.getFlag() == 0) || fsChunk.getType() == 3) { // ACK / end connection
-                        for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
+                        Iterator<Map.Entry<Integer, Integer>> iter = distributedPackets.entrySet().iterator();
+                        while(iter.hasNext()){
+                            Map.Entry<Integer, Integer> entry = iter.next();
+                            System.out.println("[DEBUG]: " + entry.getKey() + " : " + entry.getValue());
                             if (entry.getValue() == fsChunk.getPacketID()) {
-                                distributedPackets.replace(entry.getKey(), -1);
+                                int a = entry.getKey();
+                                System.out.println("supostamente vou mudar a key " + a + " que tem o valor de " + entry.getValue() + " para -1");
+                                distributedPackets.replace(a, -1);
+                                System.out.println(distributedPackets.get(a));
+
                             }
                         }
                     } else if (fsChunk.getType() == 5) {
@@ -67,26 +75,27 @@ public class ServerRunReceiver implements Runnable {
                         DatagramPacket dp = new DatagramPacket(buffer, buffer.length, this.connectedServer, this.portConnected);
                         System.out.println("[ServerRun] ACK Sent!");
                         this.socket.send(dp);
-                    }
-                    boolean flag = false;
-                    for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
-                        if (entry.getValue() == fsChunk.getPacketID()) {
-                            packets.get(entry.getKey()).push(fsChunk);
-                            flag = true;
+
+                        boolean flag = false;
+                        for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
+                            if (entry.getValue() == fsChunk.getPacketID()) {
+                                packets.get(entry.getKey()).push(fsChunk);
+                                flag = true;
+                            }
+                        }
+                        if (!flag) {
+                            // random
+                            int nThread;
+                            do {
+                                nThread = random.nextInt(nThreads);
+                                System.out.println("tenta o: " + nThread);
+                            } while (distributedPackets.get(nThread) != -1); // encontrar um livre
+
+                            System.out.println("[ServerRun] Escolhido o Servidor: " + nThread);
+                            packets.get(nThread).push(fsChunk);
+                            distributedPackets.replace(nThread, fsChunk.getPacketID());
                         }
                     }
-                    if (!flag) {
-                        // random
-                        int nThread;
-                        do {
-                            nThread = random.nextInt(nThreads);
-                        } while (distributedPackets.get(nThread) != -1); // encontrar um livre
-
-                        System.out.println("[ServerRun] Escolhido o Servidor: " + nThread);
-                        packets.get(nThread).push(fsChunk);
-                        distributedPackets.replace(nThread, fsChunk.getPacketID());
-                    }
-
                 }
             }
         } catch (IOException e) {

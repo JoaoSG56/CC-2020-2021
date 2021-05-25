@@ -140,14 +140,20 @@ public class Packet {
     }
 
     public String toString() {
-
-        return "ID: " + this.packetID + '\n' +
-                "TransferKey: " + this.transferKey + '\n' +
-                "Type: " + this.type + '\n' +
-                "Offset: " + this.offset + '\n' +
-                "Checksum: " + this.checksum + '\n' +
-                "PAYLOAD: \n" + new String(this.payload, StandardCharsets.UTF_8);
-
+        if(this.payload != null)
+            return "ID: " + this.packetID + '\n' +
+                    "TransferKey: " + this.transferKey + '\n' +
+                    "Type: " + this.type + '\n' +
+                    "Offset: " + this.offset + '\n' +
+                    "Checksum: " + this.checksum + '\n' +
+                    "PAYLOAD: \n" + new String(this.payload, StandardCharsets.UTF_8);
+        else
+            return "ID: " + this.packetID + '\n' +
+                    "TransferKey: " + this.transferKey + '\n' +
+                    "Type: " + this.type + '\n' +
+                    "Offset: " + this.offset + '\n' +
+                    "Checksum: " + this.checksum + '\n' +
+                    "PAYLOAD: null\n";
     }
 
     public int getType(){

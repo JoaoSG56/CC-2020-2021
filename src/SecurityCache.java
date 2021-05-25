@@ -1,8 +1,5 @@
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -56,16 +53,19 @@ public class SecurityCache {
     public void sweep() {
         this.l.lock();
         try {
-            for (Map.Entry<String, RecentRequest> entry : this.recentRequests.entrySet()) {
-                System.out.println("Percorrendo ...");
+            Iterator<Map.Entry<String,RecentRequest>> iter = this.recentRequests.entrySet().iterator();
+            while(iter.hasNext()) {
+                Map.Entry<String, RecentRequest> entry = iter.next();
+                //System.out.println("Percorrendo ...");
                 if (entry.getValue().getRequestPTime() > maxRequestsPTime) {
                     addOnBlackList(entry.getKey());
-                    removeRequest(entry.getKey());
+                    iter.remove();
                 } else if (entry.getValue().getTimePassed() >= 20) {
-                    removeRequest(entry.getKey());
+                    iter.remove();
                 } else {
                     incrementTime(entry.getKey());
                 }
+
             }
         } finally {
             this.l.unlock();

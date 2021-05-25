@@ -36,7 +36,7 @@ public class ServerRunThread implements Runnable{
 
     private int sendPacket(int id, int flag, int offset, byte[] bytesChunk) throws IOException {
         Packet fsChunkPacket = new Packet(id, getTransferID(flag), 4, offset, Packet.getCRC32Checksum(bytesChunk),bytesChunk);
-        System.out.println("[ServerRunThread] Sending:\n" + fsChunkPacket.toString());
+        //System.out.println("[ServerRunThread] Sending:\n" + fsChunkPacket.toString());
 
         byte[] buf = fsChunkPacket.packetToBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.portConnected);

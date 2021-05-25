@@ -73,8 +73,8 @@ class ServerRun {
         Map<Integer, Integer> distributedPackets = new HashMap<>(); // nº de Thread -> lista de id packets que já/está a tratar
 
         new Thread(new ServerRunReceiver(packets,distributedPackets,nThreads,
-                                        sr.socket, sr.port,sr.address,
-                                        sr.connectedServer,sr.portConnected)).start();
+                sr.socket, sr.port,sr.address,
+                sr.connectedServer,sr.portConnected)).start();
 
         for (int i = 0; i < sr.nThreads; i++) {
             StackShared stackShared = new StackShared(); // inicializar stack por cada thread

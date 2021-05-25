@@ -107,6 +107,13 @@ public class ServersInfo {
                     if (f.getOcupacao() < ocupation) {
                         ocupation = f.getOcupacao();
                         best = f;
+                    }else if(f.getOcupacao() == ocupation && ocupation != 1){
+                        Random random = new Random();
+                        if(random.nextInt(2) == 1){
+                            System.out.println("Vou escolher um diferente");
+                            ocupation = f.getOcupacao();
+                            best = f;
+                        }
                     }
                 }
                 if (best != null)
