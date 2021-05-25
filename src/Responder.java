@@ -4,10 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReadWriteLock;
 
 // thread responsável por responder ao cliente
 public class Responder implements Runnable {
@@ -48,27 +45,17 @@ public class Responder implements Runnable {
         int lastLPacket = 0;
 
         boolean noFlag = false;
-        int i = 0;
         for (Packet p : packets) {
-            /*
-            System.out.println("\n[Responder]: " +
-                            "\nindice : " + i +
-                            "\noffset : " + p.getOffset() +
-                            "\nlastOffSet: " + lastOffSet +
-                            "\nlastLPacket: " + lastLPacket);
-             */
             if (lastOffSet + lastLPacket != p.getOffset())
                 return lastOffSet + lastLPacket; // retornar o packet que falta
             lastOffSet = p.getOffset();
             lastLPacket = p.getLength();
-            //System.out.println("[DEBUG]: " + p.getLength());
             if (p.getFlag() == 0) noFlag = true;
 
         }
         if (noFlag)
             return -1;
         else {
-            System.out.println("\n\n\n\n\n *chegou aqui* \n\n\n\n\n");
             return 0;
 
         }
@@ -94,10 +81,9 @@ public class Responder implements Runnable {
                     Vericicar que é end connection
                      */
                     if (packet.getType() == 3) {
-                        System.out.println("Conection Ended");
+                        System.out.println("[Responder] Conection Ended");
                         return;
                     }
-
                     /*
                     Verificar checksum
                      */
@@ -133,16 +119,21 @@ public class Responder implements Runnable {
                     sendACK(p);
                     System.out.println("[Responder] ACK Sended");
                     System.out.println(":\n" + p.toString());
-                    System.out.println("VOU DORMIR 5 SEGUNDOS PELO MENOS");
                     timeOut++;
                     if (timeOut == 5) {
                         p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 0 + ":" + this.myServerPort, 3, pStatus, 0, null);
                         sendACK(p);
+                        out.write("HTTP/1.0 503 Service Unavailable\n");
+                        out.write("Connection: close\n");
+                        out.flush();
                         out.close();
+
+                        System.out.println("[Responder] Freeing Server ...");
+                        this.servidores.freeServer(this.fromServer, this.fromPort);
+
                         return;
                     }
                     packet = (Packet) stack.iWannaPop();
-                    System.out.println("ACORDEI");
 
                 }
             }

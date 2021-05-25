@@ -5,9 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class ClientUdpHandler extends Thread {
     private Request request;
@@ -77,8 +74,6 @@ public class ClientUdpHandler extends Thread {
                     Thread.sleep(2000);
                 } while (!this.acksToConfirm.wasReceived(this.request.getId()));
             } else {
-                // falta aqui um await e signal na outra parte //
-                // inserir mensagem
                 System.out.println("[ClientUdpHandler] Server not found");
                 Socket s = this.clientInfo.getClient(request.getId());
                 sendServiceUnavailable(s);

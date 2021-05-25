@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +24,6 @@ public class ClientInfo {
         }
     }
 
-    public int getLength(){
-        rl.lock();
-        try {
-            return this.clients.size();
-        }finally {
-            rl.unlock();
-        }
-    }
 
     public Socket getClient(int key) {
         wl.lock();

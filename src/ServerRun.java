@@ -2,8 +2,6 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
-
-
 /*
     Classe correspondende aos FastFileServers
  */
@@ -29,8 +27,6 @@ class ServerRun {
 
 
     public static void main(String[] args) throws SocketException, UnknownHostException {
-
-        // java ServerRun s1 10.1.1.1:80 4
 
         if (args.length < 2)
             System.out.println("Argumentos insuficientes\n" +
@@ -81,7 +77,6 @@ class ServerRun {
             distributedPackets.put(i, -1); // inicializar array
             packets.put(i, stackShared); // adicionar stack ao map
 
-            // Thread ... .start()
             new Thread(new ServerRunThread(stackShared,sr.socket,sr.port,sr.address,sr.connectedServer,sr.portConnected)).start();
         }
 

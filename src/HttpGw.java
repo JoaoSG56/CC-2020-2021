@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.*;
 
 public class HttpGw {
     private int port;
@@ -81,20 +80,4 @@ public class HttpGw {
         server.start();
     }
 
-    /*
-
-        public void start() throws IOException {
-        ServerSocket socket = new ServerSocket(port);
-        System.out.println("Listening on port " + port);
-        Socket client;
-        while ((client = socket.accept()) != null) {
-            System.out.println("Received connection from " + client.getRemoteSocketAddress().toString());
-            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            String path = in.readLine().split(" ")[1];
-            System.out.println("PATH: " + path);
-
-        }
-
-
-     */
 }

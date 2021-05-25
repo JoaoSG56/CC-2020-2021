@@ -2,7 +2,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -35,8 +34,6 @@ public class Packet {
         return bytes.length;
     }
 
-    // Id TransferKey[IP:transferID:port] Type Offset Payload
-
     public Packet(byte[] datagram) {
         this.packetID = ByteBuffer.wrap(datagram, 0, 4).getInt();
 
@@ -44,8 +41,7 @@ public class Packet {
         String tKey;
         try {
             System.arraycopy(datagram, 4, destIp, 0, 4);
-            //System.out.println(Arrays.toString(destIp));
-            //System.out.println("[PACKET]: " + InetAddress.getByAddress(destIp));
+
             tKey = InetAddress.getByAddress(destIp).getHostAddress();
             tKey += ":" + ByteBuffer.wrap(datagram, 8, 4).getInt();
             tKey += ":" + ByteBuffer.wrap(datagram, 12, 4).getInt();

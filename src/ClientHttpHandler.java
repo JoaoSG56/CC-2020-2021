@@ -2,17 +2,17 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.DatagramSocket;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientHttpHandler extends Thread {
     private StackShared packetStack;
     private DatagramSocket socket;
-    private Map<Integer,StackShared> clientStacks;
+    private Map<Integer, StackShared> clientStacks;
     private ServersInfo servidores;
     private int serverPort;
 
-    public ClientHttpHandler(StackShared packetStack,DatagramSocket socket,ServersInfo servidores,int serverPort) {
+    public ClientHttpHandler(StackShared packetStack, DatagramSocket socket, ServersInfo servidores, int serverPort) {
         this.packetStack = packetStack;
         this.clientStacks = new HashMap<>();
         this.socket = socket;
@@ -20,24 +20,18 @@ public class ClientHttpHandler extends Thread {
         this.serverPort = serverPort;
     }
 
-
     public void run() {
 
         try {
-            //this.ss = new ServerSocket(port);
-            System.out.println("[1] HttpClientHandler:> ready to send");
+            System.out.println("[HttpClientHandler]:> ready to send");
             boolean running = true;
             Response s;
             while (running) {
-                if ((s = (Response) this.packetStack.pop()) != null) { // tem resposta
-                    //System.out.println("[ClientHttpHandler] encontrada resposta");
-
-                    if(!clientStacks.containsKey(s.getId())) { // se não contém
+                if ((s = (Response) this.packetStack.iWannaPop()) != null) { // tem resposta
+                    if (!clientStacks.containsKey(s.getId())) { // se não contém
                         // criar nova entrada para o packet com o id s.getId()
-                        if(s.getData().getType() == 3) {
-                            System.out.println("[ClientHttpHandler] Closing connection");
-                        }
-                        else {
+
+                        if (s.getData().getType() != 3) {
                             StackShared cStack = new StackShared();
                             this.clientStacks.put(s.getId(), cStack);
 
@@ -52,23 +46,16 @@ public class ClientHttpHandler extends Thread {
 
                             new Thread(new Responder(s.getId(), out, cStack, this.socket, s.getServer(), s.getPort(), servidores, this.serverPort), "Responder").start();
                         }
-                    } else{
-                        if(s.getData().getType() == 3) {
+                    } else {
+                        if (s.getData().getType() == 3) {
                             this.clientStacks.get(s.getId()).push(s.getData());
                             this.clientStacks.remove(s.getId());
-                        }
-                        else
+                        } else
                             this.clientStacks.get(s.getId()).push(s.getData());
                     }
 
-                } else {
-                    //System.out.println("[1] HttpClientHandler:> Sleeping...");
-                    // await e signal //
-                    //System.out.println("já não deve ser preciso isto");
-                    Thread.sleep(2000);
                 }
             }
-
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

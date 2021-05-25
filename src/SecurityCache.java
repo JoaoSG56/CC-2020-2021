@@ -1,9 +1,7 @@
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class SecurityCache {
     private final int maxRequestsPTime;
@@ -56,7 +54,6 @@ public class SecurityCache {
             Iterator<Map.Entry<String,RecentRequest>> iter = this.recentRequests.entrySet().iterator();
             while(iter.hasNext()) {
                 Map.Entry<String, RecentRequest> entry = iter.next();
-                //System.out.println("Percorrendo ...");
                 if (entry.getValue().getRequestPTime() > maxRequestsPTime) {
                     addOnBlackList(entry.getKey());
                     iter.remove();

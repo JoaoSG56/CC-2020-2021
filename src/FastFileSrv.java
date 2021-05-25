@@ -4,7 +4,6 @@ public class FastFileSrv {
     private String name;
     private InetAddress ip;
     private int timeUp;
-    private boolean occupied;
     private int port;
 
     private float ocupacao;
@@ -15,7 +14,6 @@ public class FastFileSrv {
         this.name = name;
         this.ip = ip;
         this.timeUp = timeUp;
-        this.occupied = false;
         this.port = port;
         this.ocupacao = 0;
         this.n_threads = 1;

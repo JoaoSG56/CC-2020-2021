@@ -19,8 +19,6 @@ public class ServerRunThread implements Runnable{
 
     private StackShared packets;
 
-
-
     public ServerRunThread(StackShared packets,DatagramSocket ds, int port, InetAddress add, InetAddress connectedServer, int portConnected) throws SocketException, UnknownHostException {
         this.packets = packets;
         this.socket = ds;
@@ -36,14 +34,11 @@ public class ServerRunThread implements Runnable{
 
     private int sendPacket(int id, int flag, int offset, byte[] bytesChunk) throws IOException {
         Packet fsChunkPacket = new Packet(id, getTransferID(flag), 4, offset, Packet.getCRC32Checksum(bytesChunk),bytesChunk);
-        //System.out.println("[ServerRunThread] Sending:\n" + fsChunkPacket.toString());
 
         byte[] buf = fsChunkPacket.packetToBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.portConnected);
 
         this.socket.send(packet);
-
-        System.out.println("SENT : \n\n"  + fsChunkPacket);
 
         return packet.getLength();
 
@@ -66,17 +61,6 @@ public class ServerRunThread implements Runnable{
         int flag = (filePath.length()==offset+bytesChunk.length) ? 0 : 1;
 
         sendPacket(fsChunk.getPacketID(),flag,offset,bytesChunk);
-        /*
-        Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, offset, bytesChunk);
-
-        //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
-        byte[] bufToSend = fsChunkPacket.packetToBytes();
-        DatagramPacket packet = new DatagramPacket(bufToSend, bufToSend.length, this.connectedServer, this.portConnected);
-
-        this.socket.send(packet);
-         */
-
-
 
     }
 
@@ -103,17 +87,6 @@ public class ServerRunThread implements Runnable{
             for(int i = 0; i < chunks;i++){
                 int flag = (i == chunks-1)? 0 : 1; // última iteração
                 int end = (i==chunks-1) ? bytes.length - lastOffsetArray : maxLength;
-                int aux = lastOffsetArray+end;
-                /*
-                System.out.println("[ServerRun - handleRequest]:>\n\tatualOffset: " +
-                        atualOffset +
-                        "\n\tatualoffset+end: " + aux +
-                        "\n\tlastOffsetArray: " + lastOffsetArray +
-                        "\n\tend: " + end +
-                        "\n\tlength bytes: " + bytes.length+
-                        "\n\ti: " + i + " : " + chunks);
-
-                 */
                 byte[] bytesChunk = Arrays.copyOfRange(bytes,lastOffsetArray,lastOffsetArray+end);
                 int length = sendPacket(fsChunk.getPacketID(),flag,atualOffset,bytesChunk);
 
@@ -140,10 +113,7 @@ public class ServerRunThread implements Runnable{
                 System.out.println("[ServerRun] ERROR!");
                 ioException.printStackTrace();
             }
-
         }
-
-
     }
     public void run() {
         try {

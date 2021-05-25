@@ -21,12 +21,10 @@ public class ServersInfo {
     public ServersInfo() {
         this.servers = new HashMap<>();
         this.packetsToProcess = new Stack<>();
-        //this.packetsToProcess = new Stack<>();
     }
 
     public ServersInfo(Map<String, FastFileSrv> s) {
         this.servers = s;
-        //this.packetsToProcess = new Stack<>();
     }
 
     public void decrementOcupacao(String serverName){
@@ -42,14 +40,6 @@ public class ServersInfo {
         }
     }
 
-    public boolean containsServer(String n) {
-        this.rl.lock();
-        try {
-            return this.servers.containsKey(n);
-        } finally {
-            this.rl.unlock();
-        }
-    }
 
     public void removeServer(String name) {
         this.wl.lock();
@@ -85,15 +75,6 @@ public class ServersInfo {
             this.rl.unlock();
         }
         return r;
-    }
-
-    public FastFileSrv getFastFileSrv(String s) {
-        this.rl.lock();
-        try {
-            return this.servers.get(s);
-        } finally {
-            this.rl.unlock();
-        }
     }
 
     public FastFileSrv getFastFileSrv(){
@@ -149,7 +130,6 @@ public class ServersInfo {
             this.wl.unlock();
         }
     }
-
 
     public void pushPacket(Packet p) {
         this.wl.lock();

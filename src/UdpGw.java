@@ -1,8 +1,10 @@
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
 
 
 public class UdpGw implements Runnable {
@@ -33,7 +35,6 @@ public class UdpGw implements Runnable {
                 byte[] buf = new byte[4096];
                 DatagramPacket packet = new DatagramPacket(buf,buf.length);
                 socket.receive(packet);
-                //System.out.println("[UdpGw] Received connection from " + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
 
                 switch (fsChunk.getType()){
@@ -46,11 +47,6 @@ public class UdpGw implements Runnable {
                         break;
                     case 3:
                         // end connection
-                        /*
-                        push packet para que a thread acabe
-                                        ou
-                                acrescentar flag
-                         */
                         System.out.println("Recebi end connection");
                         Socket aux = this.clientInfo.getClient(fsChunk.getPacketID());
 
@@ -70,23 +66,12 @@ public class UdpGw implements Runnable {
                         this.clientInfo.removeClient(fsChunk.getPacketID());
                         break;
                     case 4:
-                        //System.out.println("[UdpGw]\n"+fsChunk.toString());
                         Socket s;
                         if((s =this.clientInfo.getClient(fsChunk.getPacketID())) != null) {
-                            //System.out.println("[UdpGw] problem solved - " + this.clientInfo.getLength());
                             this.dataStack.push(new Response(fsChunk.getPacketID(), s, fsChunk));
                         }
-                        /*
-                        if(fsChunk.getFlag() == 0) {
-                            System.out.println("freeing server ...");
-                            serversInfo.freeServer(fsChunk.getAddr(), fsChunk.getPort());
-                        }
-                        */
                         break;
-
-
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,5 +1,4 @@
 import java.net.UnknownHostException;
-import java.util.Set;
 
 /*
     Classe responsável por "limpar" os servidores inativos e/ou renovar
@@ -15,10 +14,8 @@ public class ServersManager extends Thread {
     private void handlePendingPackets() throws UnknownHostException {
         Packet p;
         while((p = this.servers.popPacket()) != null) {
-            if (p.getType() == 2) { // just making sure
+            if (p.getType() == 2) {
                 this.servers.renewServer(p.getPayloadStr(),p.getAddr(),p.getPort());
-                //System.out.println("[ServersManager] Addr: " + p.getAddr() + "\nIp: " + p.getAddr().getHostAddress()+
-                //        "\nporta: " + p.getPort());
             }
         }
     }
