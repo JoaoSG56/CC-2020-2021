@@ -53,7 +53,7 @@ public class ServerRunThread implements Runnable{
         System.out.println("Failed to Send");
 
         File filePath = new File(path + this.atualPath);
-        int maxLength = 4096 - 24;
+        int maxLength = 4096 - 32;
 
         int actualOffset = (offset/ fsChunk.getLength()) * maxLength;
         System.out.println("Offset received: " + offset + "\nACTUAL OFFSET = " + actualOffset);
@@ -93,7 +93,7 @@ public class ServerRunThread implements Runnable{
 
             File filePath = new File(path + this.atualPath);
 
-            int maxLength = 4096 - 24;
+            int maxLength = 4096 - 32;
 
             byte[] bytes = Files.readAllBytes(filePath.toPath());
             int chunks = (bytes.length%maxLength == 0)? bytes.length/maxLength : bytes.length/maxLength + 1;
