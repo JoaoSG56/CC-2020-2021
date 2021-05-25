@@ -89,6 +89,10 @@ public class Responder implements Runnable {
             int timeOut = 0;
             while (true) {
                 if (packet != null) {
+                    /*
+                    Vericicar que é end connection
+                     */
+
 
                     // acrescentar todos os packets da stack ao Set;
                     do {

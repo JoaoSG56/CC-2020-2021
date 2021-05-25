@@ -50,7 +50,11 @@ public class UdpGw implements Runnable {
                         break;
                     case 3:
                         // end connection
-                        
+                        /*
+                        push packet para que a thread acabe
+                                        ou
+                                acrescentar flag
+                         */
                         this.serversInfo.freeServer(fsChunk.getAddr(),fsChunk.getPort());
                         this.clientInfo.removeClient(fsChunk.getPacketID());
                         break;
