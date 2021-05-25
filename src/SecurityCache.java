@@ -5,13 +5,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class SecurityCache {
     private final int maxRequestsPTime;
-    private final ReadWriteLock l = new ReentrantReadWriteLock();
-    private final Lock rl = l.readLock();
-    private final Lock wl = l.writeLock();
+    private final Lock l = new ReentrantLock();
     Map<String, RecentRequest> recentRequests;
     Set<String> blackList;
 
@@ -22,7 +21,7 @@ public class SecurityCache {
     }
 
     public boolean containsOnBlackList(String s,Socket socket) {
-        this.wl.lock();
+        this.l.lock();
         try {
             if(this.blackList.contains(s)) return true;
             else{
@@ -31,31 +30,31 @@ public class SecurityCache {
             }
 
         } finally {
-            this.wl.unlock();
+            this.l.unlock();
         }
     }
 
     public void removeRequest(String s) {
-        this.wl.lock();
+        this.l.lock();
         try {
             this.recentRequests.remove(s);
         } finally {
-            this.wl.unlock();
+            this.l.unlock();
         }
     }
 
     public void addOnBlackList(String s) {
-        this.wl.lock();
+        this.l.lock();
         try {
             this.blackList.add(s);
             System.out.println("[Security]: Client added to the Blacklist!");
         } finally {
-            this.wl.unlock();
+            this.l.unlock();
         }
     }
 
     public void sweep() {
-        this.wl.lock();
+        this.l.lock();
         try {
             for (Map.Entry<String, RecentRequest> entry : this.recentRequests.entrySet()) {
                 System.out.println("Percorrendo ...");
@@ -69,21 +68,21 @@ public class SecurityCache {
                 }
             }
         } finally {
-            this.wl.unlock();
+            this.l.unlock();
         }
     }
 
     public void incrementTime(String s) {
-        this.wl.lock();
+        this.l.lock();
         try {
             this.recentRequests.get(s).add1Sec();
         } finally {
-            this.wl.unlock();
+            this.l.unlock();
         }
     }
 
     public void addOnRecentRequests(String s, Socket socket) {
-        this.wl.lock();
+        this.l.lock();
         try {
             if (this.recentRequests.containsKey(s)) {
                 this.recentRequests.get(s).addRequest();
@@ -97,7 +96,7 @@ public class SecurityCache {
                 this.recentRequests.put(s, new RecentRequest(socket));
             }
         } finally {
-            this.wl.unlock();
+            this.l.unlock();
         }
     }
 }
