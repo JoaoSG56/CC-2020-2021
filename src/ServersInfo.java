@@ -7,6 +7,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * Classe que contém a informação de um servidor
+ */
 
 public class ServersInfo {
     private final ReadWriteLock l = new ReentrantReadWriteLock();
@@ -18,19 +21,40 @@ public class ServersInfo {
     private final int timeUpServer = 20;
 
 
+    /**
+     * Construtor da classe
+     */
     public ServersInfo() {
         this.servers = new HashMap<>();
         this.packetsToProcess = new Stack<>();
     }
 
+    /**
+     * Construtor parametrizado da classe
+     *
+     * @param s     Map que contém vários servidores
+     */
     public ServersInfo(Map<String, FastFileSrv> s) {
         this.servers = s;
     }
 
+    /**
+     * Método que decrementa a ocupação de um servidor
+     *
+     * @param serverName    Servidor cuja ocupação será decrementada
+     */
     public void decrementOcupacao(String serverName){
         this.servers.get(serverName).decrementOcupacao();
     }
 
+    /**
+     * Método que adiciona um servidor ao map de servidores
+     *
+     * @param n         Nome do servidor
+     * @param ip        Ip do servidor
+     * @param port      Porta do servidor
+     * @param n_threads Número de threads que o servidor consegue suportar
+     */
     public void addServer(String n, InetAddress ip, int port, int n_threads) {
         this.wl.lock();
         try {
@@ -40,7 +64,11 @@ public class ServersInfo {
         }
     }
 
-
+    /**
+     * Método que remove um servidor do map de sevidores
+     *
+     * @param name  Nome do sevidor a ser removido
+     */
     public void removeServer(String name) {
         this.wl.lock();
         try {
@@ -50,6 +78,12 @@ public class ServersInfo {
         }
     }
 
+    /**
+     * Método que liberta um servidor
+     *
+     * @param add   Address do servidor
+     * @param port  Porta do sevidor
+     */
     public void freeServer(InetAddress add, int port){
         this.wl.lock();
         try {
@@ -65,7 +99,11 @@ public class ServersInfo {
             this.wl.unlock();
         }
     }
-
+    /**
+     * Método que obtém os fast file servers
+     *
+     * @return  Lista dos fast file Servers obtidos
+     */
     public List<FastFileSrv> getFastFileSrvs() {
         List<FastFileSrv> r = new ArrayList<>();
         this.rl.lock();
@@ -77,6 +115,11 @@ public class ServersInfo {
         return r;
     }
 
+    /**
+     * Método que obtém o melhor fast file server disponível
+     *
+     * @return  Melhor fast file server disponível
+     */
     public FastFileSrv getFastFileSrv(){
         this.wl.lock();
         try {
@@ -114,7 +157,13 @@ public class ServersInfo {
         }
     }
 
-
+    /**
+     * M+etodo que renova um servidor
+     *
+     * @param payloadStr    String do payload
+     * @param address       Address do servidor
+     * @param port          Porta do servidor
+     */
     public void renewServer(String payloadStr, InetAddress address, int port) {
         // name
         this.wl.lock();
@@ -130,6 +179,11 @@ public class ServersInfo {
         }
     }
 
+    /**
+     * Método que dá push de um packet
+     *
+     * @param p Packet
+     */
     public void pushPacket(Packet p) {
         this.wl.lock();
         try {
@@ -139,6 +193,11 @@ public class ServersInfo {
         }
     }
 
+    /**
+     * Método que dá pop
+     *
+     * @return  Packet obtido pelo pop
+     */
     public Packet popPacket() {
         this.wl.lock();
         try {

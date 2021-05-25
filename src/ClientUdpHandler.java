@@ -6,6 +6,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 
+/**
+ * Classe responsável por fazer o pedido do Cliente ao FastFileServer.
+ */
 public class ClientUdpHandler extends Thread {
     private Request request;
     private ServersInfo servidores;
@@ -15,6 +18,15 @@ public class ClientUdpHandler extends Thread {
     private ClientInfo clientInfo;
     private AcksToConfirm acksToConfirm;
 
+    /**
+     * @param socket Socket do Servidor principal usada para enviar DatagramPackets.
+     * @param r Request à qual a classe foi atribuída
+     * @param servidores Local de armazenamento dos FastFileServers
+     * @param address InetAddress local
+     * @param port Porta local
+     * @param clientInfo Informação dos clientes
+     * @param acksToConfirm Lista de ACK's para serem confirmados
+     */
     public ClientUdpHandler(DatagramSocket socket, Request r, ServersInfo servidores, InetAddress address, int port, ClientInfo clientInfo, AcksToConfirm acksToConfirm) {
         this.request = r;
         this.servidores = servidores;
@@ -25,6 +37,10 @@ public class ClientUdpHandler extends Thread {
         this.acksToConfirm = acksToConfirm;
     }
 
+    /**
+     * Método que envia para o Cliente um Http Response com o código 503 Service Unavailable e fecha a conexão
+     * @param s Socket do Cliente em questão
+     */
     private void sendServiceUnavailable(Socket s) {
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
@@ -40,6 +56,9 @@ public class ClientUdpHandler extends Thread {
 
     }
 
+    /**
+     * Thread que se dedica ao envio do pedido do Cliente para o FastFileServer
+     */
     @Override
     public void run() {
         try {

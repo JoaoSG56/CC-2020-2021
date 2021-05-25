@@ -5,16 +5,27 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * Classe responsável por armazenar todas as informações dos Clientes que fazem um Request.
+ */
 public class ClientInfo {
     private Map<Integer, Socket> clients;
     private ReadWriteLock l = new ReentrantReadWriteLock();
     private final Lock rl = l.readLock();
     private final Lock wl = l.writeLock();
 
+    /**
+     * Construtor da class.
+     */
     public ClientInfo() {
         this.clients = new HashMap<>();
     }
 
+    /**
+     * Método que adiciona cliente à estrutura de armazenamento.
+     * @param key int relativo ao id do Pacote ao qual foi atríbuido.
+     * @param client Socket relativo ao cliente.
+     */
     public void addClient(int key, Socket client) {
         wl.lock();
         try {
@@ -24,7 +35,9 @@ public class ClientInfo {
         }
     }
 
+    /*
 
+     */
     public Socket getClient(int key) {
         wl.lock();
         try {

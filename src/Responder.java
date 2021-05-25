@@ -6,7 +6,9 @@ import java.net.InetAddress;
 import java.util.Set;
 import java.util.TreeSet;
 
-// thread responsável por responder ao cliente
+/**
+ * Thread responsável por responder ao cliente
+ */
 public class Responder implements Runnable {
     private BufferedWriter out;
     private Set<Packet> packetSet;
@@ -18,7 +20,17 @@ public class Responder implements Runnable {
     private ServersInfo servidores;
     private int myServerPort;
 
-
+    /**
+     * Construtor parameterizado
+     * @param id id relativo ao packet ao qual a classe está responsável
+     * @param out BufferedWriter do Cliente
+     * @param stack Stack partilhada com pacotes dirigidos à classe
+     * @param socket Socket do Servidor para ser usada para pedir novos fragmentos
+     * @param server InetAddress do FastFileServer
+     * @param port porta do FastFileServer
+     * @param serversInfo lista de Servidores ativos
+     * @param myServerPort porta do Servidor Principal
+     */
     public Responder(int id, BufferedWriter out, StackShared stack, DatagramSocket socket, InetAddress server, int port, ServersInfo serversInfo, int myServerPort) {
         this.packetID = id;
         this.out = out;
@@ -37,7 +49,11 @@ public class Responder implements Runnable {
     verificar que existe flag == 0 e offsets seguidos
     */
 
-    // Tuplo (chunk, offset)
+    /**
+     * Método estático que verifica se estão presentes todos os packets
+     * @param packets Set com os packets
+     * @return int
+     */
     public static int checkIfItsFull(Set<Packet> packets) {
         if (packets.size() == 0)
             return 0;
@@ -61,6 +77,11 @@ public class Responder implements Runnable {
         }
     }
 
+    /**
+     * Método para envio de um Packet para o FastFileServer
+     * @param p Packet
+     * @throws IOException exeção
+     */
     private void sendACK(Packet p) throws IOException {
         byte[] buf = p.packetToBytes();
 
@@ -68,6 +89,9 @@ public class Responder implements Runnable {
         this.socket.send(ackPacket);
     }
 
+    /**
+     * Thread que trata de responder ao Cliente
+     */
     public void run() {
 
         try {

@@ -5,13 +5,18 @@ import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+    Classe responsável por interpretar e enviar as respostas dirigidas a um Cliente.
+ */
 public class ClientHttpHandler extends Thread {
     private StackShared packetStack;
     private DatagramSocket socket;
     private Map<Integer, StackShared> clientStacks;
     private ServersInfo servidores;
     private int serverPort;
-
+    /**
+     *  Construtor
+     */
     public ClientHttpHandler(StackShared packetStack, DatagramSocket socket, ServersInfo servidores, int serverPort) {
         this.packetStack = packetStack;
         this.clientStacks = new HashMap<>();
@@ -20,6 +25,9 @@ public class ClientHttpHandler extends Thread {
         this.serverPort = serverPort;
     }
 
+    /**
+     * Método run responsável por toda a execução desta classe.
+     */
     public void run() {
 
         try {

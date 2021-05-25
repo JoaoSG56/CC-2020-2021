@@ -6,6 +6,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 
+/**
+ * Classe responsável por receber pedidos do fast file server
+ */
 
 public class UdpGw implements Runnable {
 
@@ -16,6 +19,15 @@ public class UdpGw implements Runnable {
     private ServersInfo serversInfo;
     private AcksToConfirm acksToConfirm;
 
+    /**
+     *
+     * @param socket        Socket do servidor principal
+     * @param clientInfo    Informação do Cliente
+     * @param d             Stack partilhada
+     * @param serversInfo   Informação dos fast file servers
+     * @param port          porta do Gateway
+     * @param acksToConfirm ACK's armazenados
+     */
     public UdpGw(DatagramSocket socket,ClientInfo clientInfo,StackShared d, ServersInfo serversInfo,int port,AcksToConfirm acksToConfirm) {
         this.clientInfo = clientInfo;
         this.dataStack = d;
@@ -24,6 +36,10 @@ public class UdpGw implements Runnable {
         this.socket = socket;
         this.acksToConfirm = acksToConfirm;
     }
+
+    /**
+     * Thread que lida com os pacotes dos fast file servers
+     */
 
     @Override
     public void run() {

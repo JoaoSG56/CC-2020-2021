@@ -3,18 +3,31 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Classe responsavel por pela segurança do sistema
+ */
 public class SecurityCache {
     private final int maxRequestsPTime;
     private final Lock l = new ReentrantLock();
     Map<String, RecentRequest> recentRequests;
     Set<String> blackList;
 
+    /**
+     * Contrutor
+     * @param maxRequestsPTime tempo máximo
+     */
     public SecurityCache(int maxRequestsPTime) {
         this.maxRequestsPTime = maxRequestsPTime;
         this.recentRequests = new HashMap<>();
         this.blackList = new TreeSet<>();
     }
 
+    /**
+     * verifica se o cliente está na blacklist
+     * @param s cliente
+     * @param socket socket
+     * @return contains
+     */
     public boolean containsOnBlackList(String s,Socket socket) {
         this.l.lock();
         try {
@@ -29,6 +42,10 @@ public class SecurityCache {
         }
     }
 
+    /**
+     * Método responsável por remover um Request
+     * @param s String
+     */
     public void removeRequest(String s) {
         this.l.lock();
         try {
@@ -38,6 +55,11 @@ public class SecurityCache {
         }
     }
 
+    /**
+     * Adicionacliente à blacklist
+     *
+     *  @param s Cliente adicionado
+     */
     public void addOnBlackList(String s) {
         this.l.lock();
         try {
@@ -48,6 +70,9 @@ public class SecurityCache {
         }
     }
 
+    /**
+     * Método responsável por percorrer os RecentRequests e detetar anomalias
+     */
     public void sweep() {
         this.l.lock();
         try {
@@ -69,6 +94,10 @@ public class SecurityCache {
         }
     }
 
+    /**
+     * Método respondável pelo incremento de tempo
+     * @param s String
+     */
     public void incrementTime(String s) {
         this.l.lock();
         try {
@@ -78,6 +107,11 @@ public class SecurityCache {
         }
     }
 
+    /**
+     * Método responsável por adicionar um request recente
+     * @param s String
+     * @param socket Socket
+     */
     public void addOnRecentRequests(String s, Socket socket) {
         this.l.lock();
         try {

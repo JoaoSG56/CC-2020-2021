@@ -6,6 +6,9 @@ import java.util.*;
     Classe correspondende aos FastFileServers
  */
 
+/**
+ * Classe principal por executar o FastFileServer
+ */
 class ServerRun {
     private DatagramSocket socket;
     private InetAddress address;
@@ -15,6 +18,15 @@ class ServerRun {
     private String name;
     private int nThreads;
 
+    /**
+     * Construtor por parâmetros
+     * @param name Nome do servidor
+     * @param connectedServer InetAddress do Servidor Principal
+     * @param portConnected int porta do Servidor Principal
+     * @param nThreads int número de Threads
+     * @throws SocketException exceção
+     * @throws UnknownHostException exceção
+     */
     ServerRun(String name, InetAddress connectedServer, int portConnected, int nThreads) throws SocketException, UnknownHostException {
         this.port = 80;
         this.address = InetAddress.getLocalHost();
@@ -25,7 +37,12 @@ class ServerRun {
         this.nThreads = nThreads;
     }
 
-
+    /**
+     * Main program
+     * @param args argumentos: Nome Ip:Porta N_threads(opcional)
+     * @throws SocketException exceção
+     * @throws UnknownHostException exceção
+     */
     public static void main(String[] args) throws SocketException, UnknownHostException {
 
         if (args.length < 2)

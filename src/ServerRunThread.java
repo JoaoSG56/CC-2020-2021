@@ -4,6 +4,10 @@ import java.net.*;
 import java.nio.file.Files;
 import java.util.Arrays;
 
+/**
+ * Classe que lida com os packets do sevidor
+ */
+
 public class ServerRunThread implements Runnable{
     private final String path = "/home/core/Files";
     private DatagramSocket socket;
@@ -19,6 +23,18 @@ public class ServerRunThread implements Runnable{
 
     private StackShared packets;
 
+    /**
+     * Contrutor parametrizado da classe
+     *
+     * @param packets               Stack partilhada de packets
+     * @param ds                    Socket do gateway
+     * @param port                  Porta do servidor
+     * @param add                   Address do servidor
+     * @param connectedServer       Servidor da conexão
+     * @param portConnected         Porta da conexão
+     * @throws SocketException      Exceção de socket
+     * @throws UnknownHostException Exceção de host desconhecido
+     */
     public ServerRunThread(StackShared packets,DatagramSocket ds, int port, InetAddress add, InetAddress connectedServer, int portConnected) throws SocketException, UnknownHostException {
         this.packets = packets;
         this.socket = ds;
@@ -28,10 +44,26 @@ public class ServerRunThread implements Runnable{
         this.portConnected = portConnected;
     }
 
+    /**
+     * Método que obtém o identificador de transferência
+     *
+     * @param flag  flag da transferência
+     * @return      Identificador da transferência
+     */
     private String getTransferID(int flag){
         return this.address.getHostAddress() + ":"+flag+":"+this.port;
     }
 
+    /**
+     * Método que envia um fragmento do pacote
+     *
+     * @param id            ID do pacote
+     * @param flag          Flag do packet
+     * @param offset        Offset do packet
+     * @param bytesChunk    Chunk de bytes
+     * @return              Tamanho do packet
+     * @throws IOException  Exceção de input output
+     */
     private int sendPacket(int id, int flag, int offset, byte[] bytesChunk) throws IOException {
         Packet fsChunkPacket = new Packet(id, getTransferID(flag), 4, offset, Packet.getCRC32Checksum(bytesChunk),bytesChunk);
 
@@ -44,6 +76,14 @@ public class ServerRunThread implements Runnable{
 
     }
 
+    /**
+     * Método que envia um pacote
+     *
+     * @param fsChunk               Fragmento doPacket
+     * @param offset                Offset do packet
+     * @throws IOException          Exceção de input output
+     * @throws InterruptedException Exceçao de interrupção
+     */
     private void handleRequest(Packet fsChunk, int offset) throws IOException, InterruptedException {
         System.out.println("Failed to Send");
 
@@ -63,7 +103,11 @@ public class ServerRunThread implements Runnable{
 
     }
 
-
+    /**
+     * Método que envia um packet
+     *
+     * @param fsChunk   Fragmento a ser enviado
+     */
     private void handleRequest(Packet fsChunk) {
         try {
 
@@ -109,6 +153,10 @@ public class ServerRunThread implements Runnable{
             }
         }
     }
+
+    /**
+     * Thread que lida com os packets
+     */
     public void run() {
         try {
         Packet packet;

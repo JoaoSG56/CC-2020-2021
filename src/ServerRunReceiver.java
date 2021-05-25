@@ -6,6 +6,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * Classe que recebe os packets que seguirão para os fast file serverrs e encaminha os packets para as threads corretas
+ */
+
 public class ServerRunReceiver implements Runnable {
     private Map<Integer, StackShared> packets; // nº de thread -> stack partilhada
     private Map<Integer, Integer> distributedPackets; // nº de Thread -> lista de id packets que já/está a tratar
@@ -20,6 +24,18 @@ public class ServerRunReceiver implements Runnable {
 
     private int nThreads;
 
+    /**
+     * Construtor da classe
+     *
+     * @param packets Lista de Stacks distribuídas pelas Threads
+     * @param distributedPackets  Mapeador de Thread para id do packet Responsável
+     * @param nThreads int Número de threads
+     * @param socket Socket do FastFileServer
+     * @param port int porta do FastFileServer
+     * @param address InetAddress do FastFileServer
+     * @param connectedServer InetAddress do Servidor Principal
+     * @param portConnected int porta do Servidor Principal
+     */
     public ServerRunReceiver(Map<Integer, StackShared> packets, Map<Integer, Integer> distributedPackets, int nThreads,
                              DatagramSocket socket, int port, InetAddress address,
                              InetAddress connectedServer, int portConnected) {
@@ -34,7 +50,9 @@ public class ServerRunReceiver implements Runnable {
 
     }
 
-
+    /**
+     * Thread que executa a distribição dos pedidos pelas threads
+     */
     public void run() {
 
         try {

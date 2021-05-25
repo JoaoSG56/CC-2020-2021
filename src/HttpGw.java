@@ -3,12 +3,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 
+/**
+ * Classe relativa ao Servidor Principal responsável por atender a pedidos Http de Clientes
+ */
 public class HttpGw {
     private int port;
     private ServersInfo servidores;
     private StackShared packetStack;
     private ClientInfo clientInfo;
 
+    /**
+     * Construtor da classe por parâmetros
+     * @param port int relativo à porta ao qual vai atender o Servidor
+     */
     public HttpGw(int port) {
         this.packetStack = new StackShared();
         this.servidores = new ServersInfo(); // não precisa do acesso
@@ -16,6 +23,10 @@ public class HttpGw {
         this.clientInfo = new ClientInfo();
     }
 
+    /**
+     * Método que inicia a execução do Servidor Principal
+     * @throws IOException exceção relativa à abertura de Sockets
+     */
     public void start() throws IOException {
         DatagramSocket ds = new DatagramSocket(this.port);
 
@@ -74,6 +85,11 @@ public class HttpGw {
         }
     }
 
+    /**
+     * Main do Programa
+     * @param args argumentos
+     * @throws IOException exceção de abertura de Sockets
+     */
     public static void main(String[] args) throws IOException {
         HttpGw server = new HttpGw(8080);
         server.start();
