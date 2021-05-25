@@ -56,7 +56,7 @@ public class HttpGw {
         System.out.println("HttpGw:> Listening on port " + port);
         Socket client;
         while ((client = socket.accept()) != null) {
-            String clientAddress = client.getLocalAddress().toString();
+            String clientAddress = client.getInetAddress().getHostAddress();
             System.out.println("Received connection from " + clientAddress);
             if (securityCache.containsOnBlackList(clientAddress,client)) {
                 System.out.println("[HttpGw]:> Client on BlackList");
