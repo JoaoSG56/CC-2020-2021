@@ -18,8 +18,6 @@ public class RecentRequest {
     }
 
     public float getRequestPTime() {
-        System.out.println(this.requestNumber + " : " + this.timePassed);
- 
         return (float) this.requestNumber / this.timePassed;
 
     }

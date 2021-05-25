@@ -66,7 +66,6 @@ public class HttpGw {
 
                 System.out.println("PATH: " + path);
                 if (!path.equals("/")) {
-                    System.out.println("[HTTPGW] VAI ACRESCENTAR : " + idRequest + " Cliente : " + client);
                     this.clientInfo.addClient(idRequest, client);
                     new Thread(new ClientUdpHandler(ds, new Request(idRequest++, path), this.servidores, InetAddress.getLocalHost(), this.port, this.clientInfo, acksToConfirm)).start();
                 } else System.out.println("path impossível");

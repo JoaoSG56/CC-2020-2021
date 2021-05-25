@@ -30,7 +30,6 @@ public class ServersManager extends Thread {
     }
 
     public void run() {
-        System.out.println("Im Server Manager");
         while (true) {
             try {
 

@@ -47,7 +47,6 @@ public class UdpGw implements Runnable {
                         break;
                     case 3:
                         // end connection
-                        System.out.println("Recebi end connection");
                         Socket aux = this.clientInfo.getClient(fsChunk.getPacketID());
 
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(aux.getOutputStream()));

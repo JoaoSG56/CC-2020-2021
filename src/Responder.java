@@ -96,7 +96,6 @@ public class Responder implements Runnable {
                         // acrescentar todos os packets da stack ao Set;
                         System.out.println("[Responder] Good checkSum");
                         do {
-                            //System.out.println("[Responder]: Pacote adicionado!");
                             packetSet.add(packet);
                             packet = (Packet) stack.pop();
                         } while (packet != null);
@@ -118,7 +117,6 @@ public class Responder implements Runnable {
                     Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 1 + ":" + this.myServerPort, 1, pStatus, 0, null);
                     sendACK(p);
                     System.out.println("[Responder] ACK Sended");
-                    System.out.println(":\n" + p.toString());
                     timeOut++;
                     if (timeOut == 5) {
                         p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 0 + ":" + this.myServerPort, 3, pStatus, 0, null);

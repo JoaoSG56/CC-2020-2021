@@ -50,8 +50,7 @@ public class ServerRunReceiver implements Runnable {
                 Packet fsChunk = new Packet(packet.getData());
 
                 if (fsChunk.getChecksum() != Packet.getCRC32Checksum(fsChunk.getPayloadBytes())) {
-                    System.out.println(fsChunk.getChecksum() + " : " + Packet.getCRC32Checksum(fsChunk.getPayloadBytes()));
-                    System.out.println("[ServrRunReceiver] Bad checksum\n" +
+                    System.out.println("[ServerRunReceiver] Bad checksum\n" +
                             "Ignoring packet ...");
                 } else {
 
@@ -59,13 +58,9 @@ public class ServerRunReceiver implements Runnable {
                         Iterator<Map.Entry<Integer, Integer>> iter = distributedPackets.entrySet().iterator();
                         while(iter.hasNext()){
                             Map.Entry<Integer, Integer> entry = iter.next();
-                            System.out.println("[DEBUG]: " + entry.getKey() + " : " + entry.getValue());
                             if (entry.getValue() == fsChunk.getPacketID()) {
                                 int a = entry.getKey();
-                                System.out.println("supostamente vou mudar a key " + a + " que tem o valor de " + entry.getValue() + " para -1");
                                 distributedPackets.replace(a, -1);
-                                System.out.println(distributedPackets.get(a));
-
                             }
                         }
                     } else if (fsChunk.getType() == 5) {
@@ -87,7 +82,6 @@ public class ServerRunReceiver implements Runnable {
                             int nThread;
                             do {
                                 nThread = random.nextInt(nThreads);
-                                System.out.println("tenta o: " + nThread);
                             } while (distributedPackets.get(nThread) != -1); // encontrar um livre
 
                             System.out.println("[ServerRun] Escolhido o Servidor: " + nThread);

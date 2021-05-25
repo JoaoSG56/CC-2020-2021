@@ -51,7 +51,6 @@ public class ServerRunThread implements Runnable{
         int maxLength = 4096 - 32;
 
         int actualOffset = (offset/ fsChunk.getLength()) * maxLength;
-        System.out.println("Offset received: " + offset + "\nACTUAL OFFSET = " + actualOffset);
 
         byte[] bytes = Files.readAllBytes(filePath.toPath());
 
@@ -67,11 +66,6 @@ public class ServerRunThread implements Runnable{
 
     private void handleRequest(Packet fsChunk) {
         try {
-
-
-            System.out.println(fsChunk.getPayloadStr());
-            System.out.println(fsChunk.getPayloadStr().length());
-
 
             this.atualPath = fsChunk.getPayloadStr().replace("\0","");
 

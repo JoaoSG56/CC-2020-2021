@@ -90,7 +90,6 @@ public class Packet {
         try {
             byte[] id = intToByteArray(this.packetID);
             String[] tkey = this.transferKey.split(":");
-            System.out.println("[PACKET to Bytes]: "+ tkey[0] + "\n"+InetAddress.getByName(tkey[0]).getHostAddress());
             byte[] ip_address = InetAddress.getByName(tkey[0]).getAddress();
             byte[] transferID = intToByteArray(Integer.parseInt(tkey[1]));
             byte[] port = intToByteArray(Integer.parseInt(tkey[2]));

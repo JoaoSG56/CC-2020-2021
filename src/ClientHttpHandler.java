@@ -41,7 +41,6 @@ public class ClientHttpHandler extends Thread {
                             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getClientSocket().getOutputStream()));
 
                             Packet p = s.getData();
-                            if (p == null) System.out.println("whaat");
                             cStack.push(p);
 
                             new Thread(new Responder(s.getId(), out, cStack, this.socket, s.getServer(), s.getPort(), servidores, this.serverPort), "Responder").start();
