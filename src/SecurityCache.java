@@ -4,7 +4,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Classe responsavel por pela segurança do sistema
+ * Classe responsavel pela segurança do sistema
  */
 public class SecurityCache {
     private final int maxRequestsPTime;
