@@ -46,14 +46,13 @@ public class ClientUdpHandler extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("[3] I am ClientHandlerUDP for Request " + request);
             FastFileSrv f;
             int timeOut = 0;
             if ((f = this.servidores.getFastFileSrv()) != null) {
-                System.out.println("[5] - ClientUdpHandler] Server found : " + f.getName());
+                System.out.println("ClientUdpHandler] Server found : " + f.getName());
                 Packet p = new Packet(this.request.getId(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 5, 0, this.request.getPathRequest().getBytes());
                 byte[] buf = p.packetToBytes();
-                System.out.println("[5] - ClientUdpHandler] IP: " + f.getIp().getHostAddress() + "\nPort: " + f.getPort());
+
 
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, f.getIp(), f.getPort());
                 this.acksToConfirm.addPacketId(this.request.getId());
@@ -73,7 +72,7 @@ public class ClientUdpHandler extends Thread {
 
                     socket.send(packet);
                     timeOut++;
-                    System.out.println("[5] - ClientUdpHandler] Packet sent");
+                    System.out.println("[ClientUdpHandler] Packet sent");
                     Thread.sleep(2000);
                 } while (!this.acksToConfirm.wasReceived(this.request.getId()));
             } else {

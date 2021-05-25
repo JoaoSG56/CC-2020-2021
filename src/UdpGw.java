@@ -53,7 +53,7 @@ public class UdpGw implements Runnable {
                          */
                         System.out.println("Recebi end connection");
                         Socket aux = this.clientInfo.getClient(fsChunk.getPacketID());
-                        System.out.println("\n\n\nEnd Conection\n\n\n");
+
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(aux.getOutputStream()));
                         out.write("HTTP/1.0 404 NOT FOUND\n");
                         out.write("Connection: close\n");

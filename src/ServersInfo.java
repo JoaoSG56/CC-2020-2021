@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class ServersInfo {
-    private ReadWriteLock l = new ReentrantReadWriteLock();
+    private final ReadWriteLock l = new ReentrantReadWriteLock();
     private final Lock rl = l.readLock();
     private final Lock wl = l.writeLock();
     private final Condition condition = wl.newCondition();
