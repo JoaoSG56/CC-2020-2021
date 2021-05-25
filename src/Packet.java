@@ -3,26 +3,36 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public class Packet {
 
     private int packetID;
 
     private String transferKey;
-    
 
     private int type;
 
     private int offset;
 
+    private long checksum;
+
     private byte[] payload;
 
-    public Packet(int packetID, String transferKey, int type, int offset, byte[] payload) {
+    public Packet(int packetID, String transferKey, int type, int offset, long checksum,byte[] payload) {
         this.packetID = packetID;
         this.transferKey = transferKey;
         this.type = type;
         this.offset = offset;
+        this.checksum = checksum;
         this.payload = payload;
+    }
+
+    public static long getCRC32Checksum(byte[] bytes){
+        Checksum crc32 = new CRC32();
+        crc32.update(bytes,0,bytes.length);
+        return bytes.length;
     }
 
     // Id TransferKey[IP:transferID:port] Type Offset Payload
@@ -46,10 +56,11 @@ public class Packet {
 
         this.type = ByteBuffer.wrap(datagram, 16, 4).getInt();
         this.offset = ByteBuffer.wrap(datagram, 20, 4).getInt();
+        this.checksum = ByteBuffer.wrap(datagram, 24, 8).getLong();
 
-        byte[] data = new byte[datagram.length - 24];
+        byte[] data = new byte[datagram.length - 32];
 
-        System.arraycopy(datagram, 24, data, 0, datagram.length - 24);
+        System.arraycopy(datagram, 32, data, 0, datagram.length - 32);
 
         this.payload = data;
 
@@ -65,6 +76,10 @@ public class Packet {
 
     public InetAddress getAddr() throws UnknownHostException {
         return InetAddress.getByName(this.transferKey.split(":")[0]);
+    }
+
+    public long getChecksum(){
+        return this.checksum;
     }
 
     public int getOffset(){
@@ -87,11 +102,13 @@ public class Packet {
             byte[] type = intToByteArray(this.type);
             byte[] offset = intToByteArray(this.offset);
 
+            byte[] checksum = floatToByteArray(this.checksum);
+
             int length = 0;
             if(this.payload != null)
                 length = this.payload.length;
 
-            byte[] data = new byte[24 + length];
+            byte[] data = new byte[32 + length];
 
             System.arraycopy(id,0,data,0,4);
             System.arraycopy(ip_address,0,data,4,4);
@@ -99,8 +116,10 @@ public class Packet {
             System.arraycopy(port,0,data,12,4);
             System.arraycopy(type,0,data,16,4);
             System.arraycopy(offset,0,data,20,4);
+            System.arraycopy(checksum,0,data,24,8);
+
             if(length != 0)
-                System.arraycopy(this.payload,0,data,24,length);
+                System.arraycopy(this.payload,0,data,32,length);
             return data;
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -108,9 +127,15 @@ public class Packet {
         return null;
     }
 
-    public byte[] intToByteArray(final int i) {
+    private byte[] intToByteArray(final int i) {
         ByteBuffer bb = ByteBuffer.allocate(4);
         bb.putInt(i);
+        return bb.array();
+    }
+
+    private byte[] floatToByteArray(final long i){
+        ByteBuffer bb = ByteBuffer.allocate(8);
+        bb.putLong(i);
         return bb.array();
     }
 
@@ -120,6 +145,7 @@ public class Packet {
                 "TransferKey: " + this.transferKey + '\n' +
                 "Type: " + this.type + '\n' +
                 "Offset: " + this.offset + '\n' +
+                "Checksum: " + this.checksum + '\n' +
                 "PAYLOAD: \n" + new String(this.payload, StandardCharsets.UTF_8);
 
     }
@@ -132,12 +158,16 @@ public class Packet {
         return new String(this.payload,StandardCharsets.UTF_8).replace("\0","");
     }
 
+    public byte[] getPayloadBytes(){
+        return new String(this.payload).replace("\0","").getBytes();
+    }
+
     public int getPayloadLength(){
         return this.getPayloadStr().length();
     }
 
     public int getLength(){
-        return this.payload.length + 24;
+        return this.payload.length + 32;
     }
 
 

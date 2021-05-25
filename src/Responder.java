@@ -22,12 +22,12 @@ public class Responder implements Runnable {
     private int myServerPort;
 
 
-    public Responder(int id, BufferedWriter out, StackShared stack, DatagramSocket socket, InetAddress server,int port,ServersInfo serversInfo,int myServerPort) {
+    public Responder(int id, BufferedWriter out, StackShared stack, DatagramSocket socket, InetAddress server, int port, ServersInfo serversInfo, int myServerPort) {
         this.packetID = id;
         this.out = out;
         this.stack = stack;
         this.packetSet = new TreeSet<>(new PacketComparatorByOffset());
-        this.socket =socket;
+        this.socket = socket;
         this.fromServer = server;
         this.fromPort = port;
         this.servidores = serversInfo;
@@ -41,15 +41,15 @@ public class Responder implements Runnable {
     */
 
     // Tuplo (chunk, offset)
-    public static int checkIfItsFull(Set<Packet> packets){
-        if(packets.size() == 0)
+    public static int checkIfItsFull(Set<Packet> packets) {
+        if (packets.size() == 0)
             return 0;
         int lastOffSet = 0;
         int lastLPacket = 0;
 
         boolean noFlag = false;
         int i = 0;
-        for(Packet p: packets){
+        for (Packet p : packets) {
             /*
             System.out.println("\n[Responder]: " +
                             "\nindice : " + i +
@@ -57,14 +57,15 @@ public class Responder implements Runnable {
                             "\nlastOffSet: " + lastOffSet +
                             "\nlastLPacket: " + lastLPacket);
              */
-            if(lastOffSet+lastLPacket != p.getOffset()) return lastOffSet+lastLPacket; // retornar o packet que falta
+            if (lastOffSet + lastLPacket != p.getOffset())
+                return lastOffSet + lastLPacket; // retornar o packet que falta
             lastOffSet = p.getOffset();
             lastLPacket = p.getLength();
             //System.out.println("[DEBUG]: " + p.getLength());
-            if(p.getFlag() == 0) noFlag = true;
+            if (p.getFlag() == 0) noFlag = true;
 
         }
-        if(noFlag)
+        if (noFlag)
             return -1;
         else {
             System.out.println("\n\n\n\n\n *chegou aqui* \n\n\n\n\n");
@@ -76,7 +77,7 @@ public class Responder implements Runnable {
     private void sendACK(Packet p) throws IOException {
         byte[] buf = p.packetToBytes();
 
-        DatagramPacket ackPacket = new DatagramPacket(buf,buf.length,this.fromServer,this.fromPort);
+        DatagramPacket ackPacket = new DatagramPacket(buf, buf.length, this.fromServer, this.fromPort);
         this.socket.send(ackPacket);
     }
 
@@ -92,40 +93,50 @@ public class Responder implements Runnable {
                     /*
                     Vericicar que é end connection
                      */
-                    if(packet.getType() == 3){
+                    if (packet.getType() == 3) {
                         System.out.println("Conection Ended");
                         return;
                     }
 
-
-                    // acrescentar todos os packets da stack ao Set;
-                    do {
-                        //System.out.println("[Responder]: Pacote adicionado!");
-                        packetSet.add(packet);
-                        packet = (Packet) stack.pop();
-                    }while (packet != null);
-
-
-                    if ((pStatus = checkIfItsFull(packetSet)) == -1) {
-                        System.out.println("[Responder]: Todos os pacotes ok!");
-                        Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+0+":"+this.myServerPort,1,pStatus,("está tudo").getBytes());
+                    /*
+                    Verificar checksum
+                     */
+                    if (packet.getChecksum() != Packet.getCRC32Checksum(packet.getPayloadBytes())) {
+                        System.out.println("[Responder] BAD CHECKSUM");
+                        Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 1 + ":" + this.myServerPort, 1, packet.getOffset(), 0, null);
                         sendACK(p);
-                        System.out.println("[Responder] Freeing Server ...");
-                        this.servidores.freeServer(this.fromServer,this.fromPort);
-                        break;
+                        System.out.println("[Responder] ACK Sended");
+                    } else {
+                        // acrescentar todos os packets da stack ao Set;
+                        System.out.println("[Responder] Good checkSum");
+                        do {
+                            //System.out.println("[Responder]: Pacote adicionado!");
+                            packetSet.add(packet);
+                            packet = (Packet) stack.pop();
+                        } while (packet != null);
+
+
+                        if ((pStatus = checkIfItsFull(packetSet)) == -1) {
+                            System.out.println("[Responder]: Todos os pacotes ok!");
+                            Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 0 + ":" + this.myServerPort, 1, pStatus, 0, null);
+                            sendACK(p);
+                            System.out.println("[Responder] Freeing Server ...");
+                            this.servidores.freeServer(this.fromServer, this.fromPort);
+                            break;
+                        }
                     }
                     packet = (Packet) stack.pop();
 
                 } else { // adicionar timeout?
                     System.out.println("[Responder] FALTA O PACKET COM O OFFSET: " + pStatus);
-                    Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+1+":"+this.myServerPort,1,pStatus,("Falta 1 packet").getBytes());
+                    Packet p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 1 + ":" + this.myServerPort, 1, pStatus, 0, null);
                     sendACK(p);
                     System.out.println("[Responder] ACK Sended");
                     System.out.println(":\n" + p.toString());
                     System.out.println("VOU DORMIR 5 SEGUNDOS PELO MENOS");
                     timeOut++;
-                    if(timeOut == 5){
-                        p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress()+":"+0+":"+this.myServerPort,3,pStatus,("TimeOut").getBytes());
+                    if (timeOut == 5) {
+                        p = new Packet(this.packetID, InetAddress.getLocalHost().getHostAddress() + ":" + 0 + ":" + this.myServerPort, 3, pStatus, 0, null);
                         sendACK(p);
                         out.close();
                         return;
@@ -136,7 +147,7 @@ public class Responder implements Runnable {
                 }
             }
             int length = 0;
-            for(Packet a: packetSet) {
+            for (Packet a : packetSet) {
                 length += a.getPayloadLength();
             }
 

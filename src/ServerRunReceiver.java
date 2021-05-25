@@ -49,38 +49,45 @@ public class ServerRunReceiver implements Runnable {
                 System.out.println("[10] ServerRun:> Received connection from :" + packet.getAddress());
                 Packet fsChunk = new Packet(packet.getData());
 
-                if ((fsChunk.getType() == 1 && fsChunk.getFlag() == 0) || fsChunk.getType() == 3) { // ACK / end connection
+                if (fsChunk.getChecksum() != Packet.getCRC32Checksum(fsChunk.getPayloadBytes())) {
+                    System.out.println(fsChunk.getChecksum() + " : " + Packet.getCRC32Checksum(fsChunk.getPayloadBytes()));
+                    System.out.println("[ServrRunReceiver] Bad checksum\n" +
+                            "Ignoring packet ...");
+                } else {
+
+                    if ((fsChunk.getType() == 1 && fsChunk.getFlag() == 0) || fsChunk.getType() == 3) { // ACK / end connection
+                        for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
+                            if (entry.getValue() == fsChunk.getPacketID()) {
+                                distributedPackets.replace(entry.getKey(), -1);
+                            }
+                        }
+                    } else if (fsChunk.getType() == 5) {
+                        Packet ack = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 1, 0, 0, null);
+                        byte[] buffer = ack.packetToBytes();
+                        DatagramPacket dp = new DatagramPacket(buffer, buffer.length, this.connectedServer, this.portConnected);
+                        System.out.println("[ServerRun] ACK Sent!");
+                        this.socket.send(dp);
+                    }
+                    boolean flag = false;
                     for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
                         if (entry.getValue() == fsChunk.getPacketID()) {
-                            distributedPackets.replace(entry.getKey(), -1);
+                            packets.get(entry.getKey()).push(fsChunk);
+                            flag = true;
                         }
                     }
-                } else if (fsChunk.getType() == 5) {
-                    Packet ack = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 1, 0, null);
-                    byte[] buffer = ack.packetToBytes();
-                    DatagramPacket dp = new DatagramPacket(buffer, buffer.length, this.connectedServer, this.portConnected);
-                    System.out.println("[ServerRun] ACK Sent!");
-                    this.socket.send(dp);
-                }
-                boolean flag = false;
-                for (Map.Entry<Integer, Integer> entry : distributedPackets.entrySet()) {
-                    if (entry.getValue() == fsChunk.getPacketID()) {
-                        packets.get(entry.getKey()).push(fsChunk);
-                        flag = true;
+                    if (!flag) {
+                        // random
+                        int nThread;
+                        do {
+                            nThread = random.nextInt(nThreads);
+                        } while (distributedPackets.get(nThread) != -1); // encontrar um livre
+
+                        System.out.println("[ServerRun] Escolhido o Servidor: " + nThread);
+                        packets.get(nThread).push(fsChunk);
+                        distributedPackets.replace(nThread, fsChunk.getPacketID());
                     }
-                }
-                if (!flag) {
-                    // random
-                    int nThread;
-                    do {
-                        nThread = random.nextInt(nThreads);
-                    } while (distributedPackets.get(nThread) != -1); // encontrar um livre
 
-                    System.out.println("[ServerRun] Escolhido o Servidor: " + nThread);
-                    packets.get(nThread).push(fsChunk);
-                    distributedPackets.replace(nThread, fsChunk.getPacketID());
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();

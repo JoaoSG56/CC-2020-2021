@@ -70,7 +70,7 @@ public class UdpGw implements Runnable {
                         this.clientInfo.removeClient(fsChunk.getPacketID());
                         break;
                     case 4:
-                        //System.out.println("[UdpGw] Packet ID : " + fsChunk.getPacketID());
+                        System.out.println("[UdpGw]\n"+fsChunk.toString());
                         Socket s;
                         if((s =this.clientInfo.getClient(fsChunk.getPacketID())) != null) {
                             //System.out.println("[UdpGw] problem solved - " + this.clientInfo.getLength());

@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 public class ServerRunThread implements Runnable{
-    private final String path = "/home/core/Files";
+    private final String path = "/Users/joao/Universidade/CC-2020-2021/src";
     private DatagramSocket socket;
 
     private InetAddress connectedServer;
@@ -35,8 +35,8 @@ public class ServerRunThread implements Runnable{
     }
 
     private int sendPacket(int id, int flag, int offset, byte[] bytesChunk) throws IOException {
-        Packet fsChunkPacket = new Packet(id, getTransferID(flag), 4, offset, bytesChunk);
-
+        Packet fsChunkPacket = new Packet(id, getTransferID(flag), 4, offset, Packet.getCRC32Checksum(bytesChunk),bytesChunk);
+        System.out.println("[ServerRunThread] Sending:\n" + fsChunkPacket.toString());
 
         byte[] buf = fsChunkPacket.packetToBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.portConnected);
@@ -117,17 +117,6 @@ public class ServerRunThread implements Runnable{
                 byte[] bytesChunk = Arrays.copyOfRange(bytes,lastOffsetArray,lastOffsetArray+end);
                 int length = sendPacket(fsChunk.getPacketID(),flag,atualOffset,bytesChunk);
 
-                /*
-                Packet fsChunkPacket = new Packet(fsChunk.getPacketID(), this.address.getHostAddress() + ":" + flag + ":" + this.port, 4, atualOffset, bytesChunk);
-
-                //System.out.println("[ServerRun - handleRequest]:\n" + fsChunkPacket.toString());
-                byte[] buf = fsChunkPacket.packetToBytes();
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, this.connectedServer, this.portConnected);
-
-                this.socket.send(packet);
-
-                atualOffset += packet.getLength(); // offset para o packet
-                */
                 atualOffset += length;
                 lastOffsetArray += end; // offset do array
 
@@ -140,7 +129,7 @@ public class ServerRunThread implements Runnable{
             -> Enviar end connection
              */
             System.out.println("[ServerRun] Ficheiro não encontrado!");
-            Packet pToSend = new Packet(fsChunk.getPacketID(),this.getTransferID(0),3,0,null);
+            Packet pToSend = new Packet(fsChunk.getPacketID(),this.getTransferID(0),3,0,0,null);
 
             byte[] buf = pToSend.packetToBytes();
             DatagramPacket packet = new DatagramPacket(buf,buf.length,this.connectedServer,this.portConnected );

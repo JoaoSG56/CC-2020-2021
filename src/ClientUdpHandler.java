@@ -50,7 +50,8 @@ public class ClientUdpHandler extends Thread {
             int timeOut = 0;
             if ((f = this.servidores.getFastFileSrv()) != null) {
                 System.out.println("ClientUdpHandler] Server found : " + f.getName());
-                Packet p = new Packet(this.request.getId(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 5, 0, this.request.getPathRequest().getBytes());
+                byte[] data = this.request.getPathRequest().getBytes();
+                Packet p = new Packet(this.request.getId(), this.address.getHostAddress() + ":" + 0 + ":" + this.port, 5, 0,Packet.getCRC32Checksum(data) ,data);
                 byte[] buf = p.packetToBytes();
 
 
